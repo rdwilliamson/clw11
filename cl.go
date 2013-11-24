@@ -1,3 +1,4 @@
+// A simple low level wrapper around the OpenCL 1.1 C API.
 package clw11
 
 /*
