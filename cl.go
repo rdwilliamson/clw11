@@ -11,6 +11,7 @@ import (
 )
 
 type (
+	Bool  C.cl_bool
 	Int   C.cl_int
 	Uint  C.cl_uint
 	Ulong C.cl_ulong
@@ -22,4 +23,8 @@ func Pointer(buffer []byte) unsafe.Pointer {
 		return unsafe.Pointer(&buffer[0])
 	}
 	return nil
+}
+
+func ToGoBool(b Bool) bool {
+	return b != C.CL_FALSE
 }
