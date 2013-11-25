@@ -11,12 +11,13 @@ import (
 )
 
 type (
-	Int  C.cl_int
-	Uint C.cl_uint
-	Size C.size_t
+	Int   C.cl_int
+	Uint  C.cl_uint
+	Ulong C.cl_ulong
+	Size  C.size_t
 )
 
-func voidPointer(buffer []byte) unsafe.Pointer {
+func Pointer(buffer []byte) unsafe.Pointer {
 	if buffer != nil {
 		return unsafe.Pointer(&buffer[0])
 	}

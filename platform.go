@@ -5,6 +5,9 @@ package clw11
 #include "CL/opencl.h"
 */
 import "C"
+import (
+	"unsafe"
+)
 
 type (
 	PlatformID   C.cl_platform_id
@@ -24,9 +27,9 @@ func GetPlatformIDs(numEntries Uint, platforms *PlatformID, numPlatforms *Uint) 
 		(*C.cl_uint)(numPlatforms)))
 }
 
-func GetPlatformInfo(platform PlatformID, paramName PlatformInfo, paramValueSize Size, paramValue []byte,
+func GetPlatformInfo(platform PlatformID, paramName PlatformInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
 	return NewError(C.clGetPlatformInfo(C.cl_platform_id(platform), C.cl_platform_info(paramName),
-		C.size_t(paramValueSize), voidPointer(paramValue), (*C.size_t)(paramValueSizeRet)))
+		C.size_t(paramValueSize), paramValue, (*C.size_t)(paramValueSizeRet)))
 }
