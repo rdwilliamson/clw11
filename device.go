@@ -1,8 +1,14 @@
 package clw11
 
 /*
-#cgo LDFLAGS: -lOpenCL
+#cgo windows linux LDFLAGS: -lOpenCL
+#cgo darwin LDFLAGS: -framework OpenCL
+
+#ifdef __APPLE__
+#include "OpenCL/opencl.h"
+#else
 #include "CL/opencl.h"
+#endif
 */
 import "C"
 import (
@@ -19,6 +25,7 @@ type (
 	DeviceType             C.cl_device_type
 )
 
+// Bitfield.
 const (
 	DeviceTypeDefault     DeviceType = C.CL_DEVICE_TYPE_DEFAULT
 	DeviceTypeCpu         DeviceType = C.CL_DEVICE_TYPE_CPU
@@ -90,6 +97,7 @@ const (
 	DeviceOpenclCVersion             DeviceInfo = C.CL_DEVICE_OPENCL_C_VERSION
 )
 
+// Bitfield.
 const (
 	FPDenorm         DeviceFPConfig = C.CL_FP_DENORM
 	FPFma            DeviceFPConfig = C.CL_FP_FMA
@@ -110,6 +118,7 @@ const (
 	Local  DeviceLocalMemType = C.CL_LOCAL
 )
 
+// Bitfield
 const (
 	ExecKernel       DeviceExecCapabilities = C.CL_EXEC_KERNEL
 	ExecNativeKernel DeviceExecCapabilities = C.CL_EXEC_NATIVE_KERNEL
