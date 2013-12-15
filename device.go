@@ -36,7 +36,7 @@ const (
 
 const (
 	DeviceTypeInfo                   DeviceInfo = C.CL_DEVICE_TYPE // Appended "Info" due to conflict with type.
-	DeviceVendorId                   DeviceInfo = C.CL_DEVICE_VENDOR_ID
+	DeviceVendorID                   DeviceInfo = C.CL_DEVICE_VENDOR_ID
 	DeviceMaxComputeUnits            DeviceInfo = C.CL_DEVICE_MAX_COMPUTE_UNITS
 	DeviceMaxWorkItemDimensions      DeviceInfo = C.CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS
 	DeviceMaxWorkGroupSize           DeviceInfo = C.CL_DEVICE_MAX_WORK_GROUP_SIZE
