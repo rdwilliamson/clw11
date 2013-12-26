@@ -64,6 +64,7 @@ const (
 	DeviceMinDataTypeAlignSize       DeviceInfo = C.CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE
 	DeviceSingleFpConfig             DeviceInfo = C.CL_DEVICE_SINGLE_FP_CONFIG
 	DeviceDoubleFpConfig             DeviceInfo = C.CL_DEVICE_DOUBLE_FP_CONFIG
+	DeviceHalfFpConfig               DeviceInfo = C.CL_DEVICE_HALF_FP_CONFIG
 	DeviceGlobalMemCacheType         DeviceInfo = C.CL_DEVICE_GLOBAL_MEM_CACHE_TYPE
 	DeviceGlobalMemCachelineSize     DeviceInfo = C.CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE
 	DeviceGlobalMemCacheSize         DeviceInfo = C.CL_DEVICE_GLOBAL_MEM_CACHE_SIZE
