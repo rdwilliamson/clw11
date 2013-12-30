@@ -18,13 +18,20 @@ void callCallback(const char *errinfo, const void *private_info, size_t cb, void
 }
 */
 import "C"
+import (
+	"unsafe"
+)
 
 type (
 	Context           C.cl_context
 	ContextProperties C.cl_context_properties
 )
 
-func clCreateContext(properties []ContextProperties, devices []DeviceID) (Context, error) {
+func CreateContext(properties []ContextProperties, devices []DeviceID) (Context, error) {
+	properties = append(properties, 0)
 	var result Context
-	return result, nil
+	var err C.cl_int
+	result = Context(C.clCreateContext((*C.cl_context_properties)(unsafe.Pointer(&properties[0])),
+		C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])), nil, nil, &err))
+	return result, NewError(err)
 }
