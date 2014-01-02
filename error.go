@@ -69,71 +69,72 @@ var InvalidMipLevel = errors.New("invalid mip level")
 var InvalidGlobalWorkSize = errors.New("invalid global work size")
 var InvalidProperty = errors.New("invalid property")
 
-var InvalidGlSharegroupReferenceKHR = errors.New("invalid gl sharegroup reference khr")
+// var InvalidGLSharegroupReferenceKHR = errors.New("invalid GL sharegroup reference KHR")
 
-var InvalidD3d10DeviceKHR = errors.New("invalid d3d10 device khr")
-var InvalidD3d10ResourceKHR = errors.New("invalid d3d10 resource khr")
-var D3d10ResourceAlreadyAcquiredKHR = errors.New("d3d10 resource already acquired khr")
-var D3d10ResourceNotAcquiredKHR = errors.New("d3d10 resource not acquired khr")
+// var InvalidD3d10DeviceKHR = errors.New("invalid d3d10 device khr")
+// var InvalidD3d10ResourceKHR = errors.New("invalid d3d10 resource khr")
+// var D3d10ResourceAlreadyAcquiredKHR = errors.New("d3d10 resource already acquired khr")
+// var D3d10ResourceNotAcquiredKHR = errors.New("d3d10 resource not acquired khr")
 
 var errorMap = map[C.cl_int]error{
-	-1:  DeviceNotFound,
-	-2:  DeviceNotAvailable,
-	-3:  CompilerNotAvailable,
-	-4:  MemObjectAllocationFailure,
-	-5:  OutOfResources,
-	-6:  OutOfHostMemory,
-	-7:  ProfilingInfoNotAvailable,
-	-8:  MemCopyOverlap,
-	-9:  ImageFormatMismatch,
-	-10: ImageFormatNotSupported,
-	-11: BuildProgramFailure,
-	-12: MapFailure,
-	-13: MisalignedSubBufferOffset,
-	-14: ExecStatusErrorForEventsInWaitList,
 
-	-30: InvalidValue,
-	-31: InvalidDeviceType,
-	-32: InvalidPlatform,
-	-33: InvalidDevice,
-	-34: InvalidContext,
-	-35: InvalidQueueProperties,
-	-36: InvalidCommandQueue,
-	-37: InvalidHostPtr,
-	-38: InvalidMemObject,
-	-39: InvalidImageFormatDescriptor,
-	-40: InvalidImageSize,
-	-41: InvalidSampler,
-	-42: InvalidBinary,
-	-43: InvalidBuildOptions,
-	-44: InvalidProgram,
-	-45: InvalidProgramExecutable,
-	-46: InvalidKernelName,
-	-47: InvalidKernelDefinition,
-	-48: InvalidKernel,
-	-49: InvalidArgIndex,
-	-50: InvalidArgValue,
-	-51: InvalidArgSize,
-	-52: InvalidKernelArgs,
-	-53: InvalidWorkDimension,
-	-54: InvalidWorkGroupSize,
-	-55: InvalidWorkItemSize,
-	-56: InvalidGlobalOffset,
-	-57: InvalidEventWaitList,
-	-58: InvalidEvent,
-	-59: InvalidOperation,
-	-60: InvalidGlObject,
-	-61: InvalidBufferSize,
-	-62: InvalidMipLevel,
-	-63: InvalidGlobalWorkSize,
-	-64: InvalidProperty,
+	C.CL_DEVICE_NOT_FOUND:                          DeviceNotFound,
+	C.CL_DEVICE_NOT_AVAILABLE:                      DeviceNotAvailable,
+	C.CL_COMPILER_NOT_AVAILABLE:                    CompilerNotAvailable,
+	C.CL_MEM_OBJECT_ALLOCATION_FAILURE:             MemObjectAllocationFailure,
+	C.CL_OUT_OF_RESOURCES:                          OutOfResources,
+	C.CL_OUT_OF_HOST_MEMORY:                        OutOfHostMemory,
+	C.CL_PROFILING_INFO_NOT_AVAILABLE:              ProfilingInfoNotAvailable,
+	C.CL_MEM_COPY_OVERLAP:                          MemCopyOverlap,
+	C.CL_IMAGE_FORMAT_MISMATCH:                     ImageFormatMismatch,
+	C.CL_IMAGE_FORMAT_NOT_SUPPORTED:                ImageFormatNotSupported,
+	C.CL_BUILD_PROGRAM_FAILURE:                     BuildProgramFailure,
+	C.CL_MAP_FAILURE:                               MapFailure,
+	C.CL_MISALIGNED_SUB_BUFFER_OFFSET:              MisalignedSubBufferOffset,
+	C.CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST: ExecStatusErrorForEventsInWaitList,
 
-	-1000: InvalidGlSharegroupReferenceKHR,
+	C.CL_INVALID_VALUE:                   InvalidValue,
+	C.CL_INVALID_DEVICE_TYPE:             InvalidDeviceType,
+	C.CL_INVALID_PLATFORM:                InvalidPlatform,
+	C.CL_INVALID_DEVICE:                  InvalidDevice,
+	C.CL_INVALID_CONTEXT:                 InvalidContext,
+	C.CL_INVALID_QUEUE_PROPERTIES:        InvalidQueueProperties,
+	C.CL_INVALID_COMMAND_QUEUE:           InvalidCommandQueue,
+	C.CL_INVALID_HOST_PTR:                InvalidHostPtr,
+	C.CL_INVALID_MEM_OBJECT:              InvalidMemObject,
+	C.CL_INVALID_IMAGE_FORMAT_DESCRIPTOR: InvalidImageFormatDescriptor,
+	C.CL_INVALID_IMAGE_SIZE:              InvalidImageSize,
+	C.CL_INVALID_SAMPLER:                 InvalidSampler,
+	C.CL_INVALID_BINARY:                  InvalidBinary,
+	C.CL_INVALID_BUILD_OPTIONS:           InvalidBuildOptions,
+	C.CL_INVALID_PROGRAM:                 InvalidProgram,
+	C.CL_INVALID_PROGRAM_EXECUTABLE:      InvalidProgramExecutable,
+	C.CL_INVALID_KERNEL_NAME:             InvalidKernelName,
+	C.CL_INVALID_KERNEL_DEFINITION:       InvalidKernelDefinition,
+	C.CL_INVALID_KERNEL:                  InvalidKernel,
+	C.CL_INVALID_ARG_INDEX:               InvalidArgIndex,
+	C.CL_INVALID_ARG_VALUE:               InvalidArgValue,
+	C.CL_INVALID_ARG_SIZE:                InvalidArgSize,
+	C.CL_INVALID_KERNEL_ARGS:             InvalidKernelArgs,
+	C.CL_INVALID_WORK_DIMENSION:          InvalidWorkDimension,
+	C.CL_INVALID_WORK_GROUP_SIZE:         InvalidWorkGroupSize,
+	C.CL_INVALID_WORK_ITEM_SIZE:          InvalidWorkItemSize,
+	C.CL_INVALID_GLOBAL_OFFSET:           InvalidGlobalOffset,
+	C.CL_INVALID_EVENT_WAIT_LIST:         InvalidEventWaitList,
+	C.CL_INVALID_EVENT:                   InvalidEvent,
+	C.CL_INVALID_OPERATION:               InvalidOperation,
+	C.CL_INVALID_GL_OBJECT:               InvalidGlObject,
+	C.CL_INVALID_BUFFER_SIZE:             InvalidBufferSize,
+	C.CL_INVALID_MIP_LEVEL:               InvalidMipLevel,
+	C.CL_INVALID_GLOBAL_WORK_SIZE:        InvalidGlobalWorkSize,
+	C.CL_INVALID_PROPERTY:                InvalidProperty,
 
-	-1002: InvalidD3d10DeviceKHR,
-	-1003: InvalidD3d10ResourceKHR,
-	-1004: D3d10ResourceAlreadyAcquiredKHR,
-	-1005: D3d10ResourceNotAcquiredKHR,
+	// -1000: InvalidGLSharegroupReferenceKHR,
+
+	// -1002: InvalidD3d10DeviceKHR,
+	// -1003: InvalidD3d10ResourceKHR,
+	// -1004: D3d10ResourceAlreadyAcquiredKHR,
+	// -1005: D3d10ResourceNotAcquiredKHR,
 }
 
 // Error with calling function.
@@ -160,7 +161,7 @@ func wrapError(err error) error {
 }
 
 func NewError(code C.cl_int) error {
-	if code == C.CL_SUCCESS /* 0 */ {
+	if code == C.CL_SUCCESS {
 		return nil
 	}
 
