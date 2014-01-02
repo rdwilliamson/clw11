@@ -28,13 +28,16 @@ type (
 )
 
 func CreateContext(properties []ContextProperties, devices []DeviceID) (Context, error) {
+
 	var propertiesValue *C.cl_context_properties
 	if properties != nil {
 		properties = append(properties, 0)
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
+
 	var err C.cl_int
 	result := Context(C.clCreateContext(propertiesValue,
 		C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])), nil, nil, &err))
+
 	return result, NewError(err)
 }
