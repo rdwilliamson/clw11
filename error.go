@@ -71,11 +71,6 @@ var InvalidProperty = errors.New("invalid property")
 
 // var InvalidGLSharegroupReferenceKHR = errors.New("invalid GL sharegroup reference KHR")
 
-// var InvalidD3d10DeviceKHR = errors.New("invalid d3d10 device khr")
-// var InvalidD3d10ResourceKHR = errors.New("invalid d3d10 resource khr")
-// var D3d10ResourceAlreadyAcquiredKHR = errors.New("d3d10 resource already acquired khr")
-// var D3d10ResourceNotAcquiredKHR = errors.New("d3d10 resource not acquired khr")
-
 var errorMap = map[C.cl_int]error{
 
 	C.CL_DEVICE_NOT_FOUND:                          DeviceNotFound,

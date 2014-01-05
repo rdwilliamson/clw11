@@ -39,17 +39,29 @@ const (
 	// CGLSharegroup      ContextProperties = C.CL_CGL_SHAREGROUP_KHR
 )
 
-func CreateContext(properties []ContextProperties, devices []DeviceID) (Context, error) {
+var callbackCounter int
+
+func CreateContext(properties []ContextProperties, devices []DeviceID,
+	callback func(err string, data []byte)) (Context, error) {
 
 	var propertiesValue *C.cl_context_properties
 	if properties != nil {
 		properties = append(properties, 0)
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
+	callbackMap[callbackCounter] = callback
 
-	var err C.cl_int
-	result := Context(C.clCreateContext(propertiesValue,
-		C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])), nil, nil, &err))
+	var clErr C.cl_int
+	context := Context(C.clCreateContext(propertiesValue,
+		C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callCallback),
+		unsafe.Pointer(uintptr(callbackCounter)), &clErr))
 
-	return result, NewError(err)
+	if err := NewError(clErr); err != nil {
+		delete(callbackMap, callbackCounter)
+		return context, err
+	}
+
+	callbackCounter++
+
+	return context, nil
 }

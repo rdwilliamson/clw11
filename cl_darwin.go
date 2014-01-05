@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	CGLShareGroupApple ContextProperties = C.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE
+	GLShareGroupApple ContextProperties = C.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE
 )
 
 var InvalidGLContextApple = errors.New("invalid GL context apple")
