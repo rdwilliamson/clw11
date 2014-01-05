@@ -18,9 +18,7 @@ void callCallback(const char *errinfo, const void *private_info, size_t cb, void
 }
 */
 import "C"
-import (
-	"unsafe"
-)
+import "unsafe"
 
 type (
 	Context           C.cl_context
@@ -41,19 +39,26 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		properties = append(properties, 0)
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
-	callbackMap[callbackCounter] = callback
+
+	var cCallbackFunction *[0]byte
+	if callback != nil {
+		callbackMap[callbackCounter] = callback
+		callbackCounter++
+		cCallbackFunction = (*[0]byte)(C.callCallback)
+	}
 
 	var clErr C.cl_int
 	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
-		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callCallback),
-		unsafe.Pointer(uintptr(callbackCounter)), &clErr))
+		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction, unsafe.Pointer(uintptr(callbackCounter)),
+		&clErr))
 
 	if err := NewError(clErr); err != nil {
-		delete(callbackMap, callbackCounter)
+		if callback != nil {
+			callbackCounter--
+			delete(callbackMap, callbackCounter)
+		}
 		return context, err
 	}
-
-	callbackCounter++
 
 	return context, nil
 }
