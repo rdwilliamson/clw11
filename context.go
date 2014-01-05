@@ -29,14 +29,6 @@ type (
 
 const (
 	ContextPlatform ContextProperties = C.CL_CONTEXT_PLATFORM
-
-	// ContextD3D10Device ContextProperties = C.CL_CONTEXT_D3D10_DEVICE_KHR
-
-	// GLContext          ContextProperties = C.CL_GL_CONTEXT_KHR
-	// EGLDisplay         ContextProperties = C.CL_EGL_DISPLAY_KHR
-	// GLXDisplay         ContextProperties = C.CL_GLX_DISPLAY_KHR
-	// WGLHDC             ContextProperties = C.CL_WGL_HDC_KHR
-	// CGLSharegroup      ContextProperties = C.CL_CGL_SHAREGROUP_KHR
 )
 
 var callbackCounter int
@@ -52,8 +44,8 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 	callbackMap[callbackCounter] = callback
 
 	var clErr C.cl_int
-	context := Context(C.clCreateContext(propertiesValue,
-		C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callCallback),
+	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
+		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callCallback),
 		unsafe.Pointer(uintptr(callbackCounter)), &clErr))
 
 	if err := NewError(clErr); err != nil {
