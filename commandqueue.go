@@ -13,6 +13,7 @@ package clw11
 import "C"
 
 type (
+	CommandQueue           C.cl_command_queue
 	CommandQueueProperties C.cl_command_queue_properties
 )
 
@@ -21,3 +22,9 @@ const (
 	QueueOutOfOrderExecModeEnable CommandQueueProperties = C.CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
 	QueueProfilingEnable          CommandQueueProperties = C.CL_QUEUE_PROFILING_ENABLE
 )
+
+func CreateCommandQueue(c Context, d DeviceID, p CommandQueueProperties) (CommandQueue, error) {
+	var err C.cl_int
+	result := C.clCreateCommandQueue(c, d, C.cl_command_queue_properties(p), &err)
+	return CommandQueue(result), NewError(err)
+}
