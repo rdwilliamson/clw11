@@ -23,8 +23,8 @@ const (
 	QueueProfilingEnable          CommandQueueProperties = C.CL_QUEUE_PROFILING_ENABLE
 )
 
-func CreateCommandQueue(c Context, d DeviceID, p CommandQueueProperties) (CommandQueue, error) {
+func CreateCommandQueue(context Context, device DeviceID, properties CommandQueueProperties) (CommandQueue, error) {
 	var err C.cl_int
-	result := C.clCreateCommandQueue(c, d, C.cl_command_queue_properties(p), &err)
+	result := C.clCreateCommandQueue(context, device, C.cl_command_queue_properties(properties), &err)
 	return CommandQueue(result), NewError(err)
 }
