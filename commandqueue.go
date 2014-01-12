@@ -26,5 +26,5 @@ const (
 func CreateCommandQueue(context Context, device DeviceID, properties CommandQueueProperties) (CommandQueue, error) {
 	var err C.cl_int
 	result := C.clCreateCommandQueue(context, device, C.cl_command_queue_properties(properties), &err)
-	return CommandQueue(result), NewError(err)
+	return CommandQueue(result), toError(err)
 }

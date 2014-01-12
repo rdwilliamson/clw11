@@ -36,9 +36,9 @@ func CreateBuffer(context Context, flags MemoryFlags, size Size, host_ptr []byte
 	}
 	var err C.cl_int
 	memory := C.clCreateBuffer(context, C.cl_mem_flags(flags), C.size_t(size), host, &err)
-	return Memory(memory), NewError(err)
+	return Memory(memory), toError(err)
 }
 
 func ReleaseMemObject(memobject Memory) error {
-	return NewError(C.clReleaseMemObject(memobject))
+	return toError(C.clReleaseMemObject(memobject))
 }

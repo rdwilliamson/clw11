@@ -52,7 +52,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction, unsafe.Pointer(uintptr(callbackCounter)),
 		&clErr))
 
-	if err := NewError(clErr); err != nil {
+	if err := toError(clErr); err != nil {
 		if callback != nil {
 			callbackCounter--
 			delete(callbackMap, callbackCounter)

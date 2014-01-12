@@ -150,7 +150,11 @@ func wrapError(err error) error {
 	return &Error{name[last:], err}
 }
 
-func NewError(code C.cl_int) error {
+func CodeToError(code Int) error {
+	return toError(C.cl_int(code))
+}
+
+func toError(code C.cl_int) error {
 	if code == C.CL_SUCCESS {
 		return nil
 	}

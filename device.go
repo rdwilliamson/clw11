@@ -129,13 +129,13 @@ const (
 func GetDeviceIDs(platform PlatformID, deviceType DeviceType, numEntries Uint, devices *DeviceID,
 	numDevices *Uint) error {
 
-	return NewError(C.clGetDeviceIDs(C.cl_platform_id(platform), C.cl_device_type(deviceType), C.cl_uint(numEntries),
+	return toError(C.clGetDeviceIDs(C.cl_platform_id(platform), C.cl_device_type(deviceType), C.cl_uint(numEntries),
 		(*C.cl_device_id)(devices), (*C.cl_uint)(numDevices)))
 }
 
 func GetDeviceInfo(device DeviceID, paramName DeviceInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
-	return NewError(C.clGetDeviceInfo(C.cl_device_id(device), C.cl_device_info(paramName), C.size_t(paramValueSize),
+	return toError(C.clGetDeviceInfo(C.cl_device_id(device), C.cl_device_info(paramName), C.size_t(paramValueSize),
 		paramValue, (*C.size_t)(paramValueSizeRet)))
 }

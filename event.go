@@ -62,12 +62,12 @@ const (
 func CreateUserEvent(context Context) (Event, error) {
 	var err C.cl_int
 	result := C.clCreateUserEvent(context, &err)
-	return Event(result), NewError(err)
+	return Event(result), toError(err)
 }
 
 func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
-	return NewError(C.clGetEventInfo(event, C.cl_event_info(paramName), C.size_t(paramValueSize), paramValue,
+	return toError(C.clGetEventInfo(event, C.cl_event_info(paramName), C.size_t(paramValueSize), paramValue,
 		(*C.size_t)(paramValueSizeRet)))
 }
