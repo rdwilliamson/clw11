@@ -21,8 +21,8 @@ type (
 	Size  C.size_t
 )
 
-func ToGoBool(b Bool) bool {
-	return b != C.CL_FALSE
+func (b Bool) Bool() bool {
+	return b == C.CL_TRUE
 }
 
 func Flush(cq CommandQueue) error {
