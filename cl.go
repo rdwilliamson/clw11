@@ -24,3 +24,11 @@ type (
 func ToGoBool(b Bool) bool {
 	return b != C.CL_FALSE
 }
+
+func Flush(cq CommandQueue) error {
+	return toError(C.clFlush(cq))
+}
+
+func Finish(cq CommandQueue) error {
+	return toError(C.clFinish(cq))
+}
