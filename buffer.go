@@ -67,6 +67,14 @@ func EnqueueWriteBuffer(command_queue CommandQueue, buffer Memory, blocking_read
 		(*C.cl_event)(event)))
 }
 
+func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Memory, src_offset, dst_offset, cb Size,
+	wait_list []Event, event *Event) error {
+
+	return toError(C.clEnqueueCopyBuffer(command_queue, src_buffer, dst_buffer, C.size_t(src_offset),
+		C.size_t(dst_offset), C.size_t(cb), C.cl_uint(len(wait_list)), (*C.cl_event)(&wait_list[0]),
+		(*C.cl_event)(event)))
+}
+
 func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bool, map_flags MapFlags, offset, cb Size,
 	wait_list []Event, event *Event) ([]byte, error) {
 
