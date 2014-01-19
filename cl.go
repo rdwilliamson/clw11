@@ -12,6 +12,10 @@ package clw11
 #endif
 */
 import "C"
+import (
+	"reflect"
+	"unsafe"
+)
 
 type (
 	Bool  C.cl_bool
@@ -31,4 +35,13 @@ func Flush(cq CommandQueue) error {
 
 func Finish(cq CommandQueue) error {
 	return toError(C.clFinish(cq))
+}
+
+func toBytes(p unsafe.Pointer, length int) []byte {
+	var result []byte
+	header := (*reflect.SliceHeader)((unsafe.Pointer(&result)))
+	header.Cap = length
+	header.Len = length
+	header.Data = uintptr(p)
+	return result
 }
