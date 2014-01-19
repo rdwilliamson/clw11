@@ -20,6 +20,7 @@ type (
 	MemoryFlags C.cl_mem_flags
 )
 
+// Bitfield.
 const (
 	MemoryReadWrite        MemoryFlags = C.CL_MEM_READ_WRITE
 	MemoryWriteOnly        MemoryFlags = C.CL_MEM_WRITE_ONLY
