@@ -29,14 +29,6 @@ func (b Bool) Bool() bool {
 	return b == C.CL_TRUE
 }
 
-func Flush(cq CommandQueue) error {
-	return toError(C.clFlush(cq))
-}
-
-func Finish(cq CommandQueue) error {
-	return toError(C.clFinish(cq))
-}
-
 func toBytes(p unsafe.Pointer, length int) []byte {
 	var result []byte
 	header := (*reflect.SliceHeader)((unsafe.Pointer(&result)))

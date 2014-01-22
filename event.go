@@ -59,6 +59,22 @@ const (
 	Queued    CommandExecutionStatus = C.CL_QUEUED
 )
 
+func Flush(cq CommandQueue) error {
+	return toError(C.clFlush(cq))
+}
+
+func Finish(cq CommandQueue) error {
+	return toError(C.clFinish(cq))
+}
+
+func toCWaitList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_wait_list C.cl_uint) {
+	if wait_list != nil {
+		event_wait_list = (*C.cl_event)(&wait_list[0])
+		num_events_in_wait_list = C.cl_uint(len(wait_list))
+	}
+	return
+}
+
 func CreateUserEvent(context Context) (Event, error) {
 	var err C.cl_int
 	result := C.clCreateUserEvent(context, &err)
