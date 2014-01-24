@@ -37,6 +37,10 @@ func ToBool(b bool) Bool {
 }
 
 func toBytes(p unsafe.Pointer, length int) []byte {
+	if p == nil {
+		return nil
+	}
+
 	var result []byte
 	header := (*reflect.SliceHeader)((unsafe.Pointer(&result)))
 	header.Cap = length
