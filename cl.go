@@ -29,6 +29,13 @@ func (b Bool) Bool() bool {
 	return b == C.CL_TRUE
 }
 
+func ToBool(b bool) Bool {
+	if b {
+		return C.CL_TRUE
+	}
+	return C.CL_FALSE
+}
+
 func toBytes(p unsafe.Pointer, length int) []byte {
 	var result []byte
 	header := (*reflect.SliceHeader)((unsafe.Pointer(&result)))
