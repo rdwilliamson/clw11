@@ -88,7 +88,8 @@ func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bo
 	return toBytes(mapped, int(cb)), toError(err)
 }
 
-func EnqueueUnmapMemObject(command_queue, memobj Memory, mapped_ptr []byte, wait_list []Event, event *Event) error {
+func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Memory, mapped_ptr []byte, wait_list []Event,
+	event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toCWaitList(wait_list)
 	return toError(C.clEnqueueUnmapMemObject(command_queue, memobj, unsafe.Pointer(&mapped_ptr[0]),
