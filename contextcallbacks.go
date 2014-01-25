@@ -16,12 +16,12 @@ import (
 	"unsafe"
 )
 
-var callbackMap = make(map[int]func(err string, data []byte))
+var contextCallbackMap = make(map[int]func(err string, data []byte))
 
-var callbackFunc = callback
+var contextCallbackFunc = contextCallback
 
-//export callback
-func callback(errinfo *C.char, private_info unsafe.Pointer, cb C.size_t, user_data unsafe.Pointer) {
+//export contextCallback
+func contextCallback(errinfo *C.char, private_info unsafe.Pointer, cb C.size_t, user_data unsafe.Pointer) {
 	errString := C.GoString(errinfo)
 	private := C.GoBytes(private_info, C.int(cb))
 	functionID := int(uintptr(user_data))
@@ -31,7 +31,7 @@ func callback(errinfo *C.char, private_info unsafe.Pointer, cb C.size_t, user_da
 	// TODO use user data to lookup the callback function. User can use closures
 	// to pass private data.
 
-	function := callbackMap[functionID]
+	function := contextCallbackMap[functionID]
 	if function == nil {
 		panic("could not find callback")
 	}

@@ -87,3 +87,10 @@ func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramVa
 	return toError(C.clGetEventInfo(event, C.cl_event_info(paramName), C.size_t(paramValueSize), paramValue,
 		(*C.size_t)(paramValueSizeRet)))
 }
+
+func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus,
+	callback func(event Event, event_command_exec_status CommandExecutionStatus, user_data interface{}),
+	user_data interface{}) error {
+
+	return nil
+}

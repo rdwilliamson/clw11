@@ -10,11 +10,11 @@ package clw11
 #include "CL/opencl.h"
 #endif
 
-extern void callback(char *errinfo, void *private_info, size_t cb, void *user_data);
+extern void contextCallback(char *errinfo, void *private_info, size_t cb, void *user_data);
 
-void callCallback(const char *errinfo, const void *private_info, size_t cb, void *user_data)
+void callContextCallback(const char *errinfo, const void *private_info, size_t cb, void *user_data)
 {
-	callback((char*)errinfo, (void*)private_info, cb, user_data);
+	contextCallback((char*)errinfo, (void*)private_info, cb, user_data);
 }
 */
 import "C"
@@ -29,7 +29,7 @@ const (
 	ContextPlatform ContextProperties = C.CL_CONTEXT_PLATFORM
 )
 
-var callbackCounter int
+var contextCallbackCounter int
 
 func CreateContext(properties []ContextProperties, devices []DeviceID,
 	callback func(err string, data []byte)) (Context, error) {
@@ -42,20 +42,20 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 
 	var cCallbackFunction *[0]byte
 	if callback != nil {
-		callbackMap[callbackCounter] = callback
-		callbackCounter++
-		cCallbackFunction = (*[0]byte)(C.callCallback)
+		contextCallbackMap[contextCallbackCounter] = callback
+		contextCallbackCounter++
+		cCallbackFunction = (*[0]byte)(C.callContextCallback)
 	}
 
 	var clErr C.cl_int
 	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
-		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction, unsafe.Pointer(uintptr(callbackCounter)),
-		&clErr))
+		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction,
+		unsafe.Pointer(uintptr(contextCallbackCounter)), &clErr))
 
 	if err := toError(clErr); err != nil {
 		if callback != nil {
-			callbackCounter--
-			delete(callbackMap, callbackCounter)
+			contextCallbackCounter--
+			delete(contextCallbackMap, contextCallbackCounter)
 		}
 		return context, err
 	}
