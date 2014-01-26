@@ -25,16 +25,10 @@ type (
 	Size  C.size_t
 )
 
-func (b Bool) Bool() bool {
-	return b == C.CL_TRUE
-}
-
-func ToBool(b bool) Bool {
-	if b {
-		return C.CL_TRUE
-	}
-	return C.CL_FALSE
-}
+const (
+	True  = Bool(C.CL_TRUE)
+	False = Bool(C.CL_FALSE)
+)
 
 func toBytes(p unsafe.Pointer, length int) []byte {
 	if p == nil {
