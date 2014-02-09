@@ -16,6 +16,7 @@ import "unsafe"
 type (
 	Event                  C.cl_event
 	EventInfo              C.cl_event_info
+	ProfilingInfo          C.cl_profiling_info
 	CommandType            C.cl_command_type
 	CommandExecutionStatus C.cl_int
 )
@@ -59,6 +60,13 @@ const (
 	Queued    CommandExecutionStatus = C.CL_QUEUED
 )
 
+const (
+	ProfilingCommandQueued ProfilingInfo = C.CL_PROFILING_COMMAND_QUEUED
+	ProfilingCommandSubmit ProfilingInfo = C.CL_PROFILING_COMMAND_SUBMIT
+	ProfilingCommandStart  ProfilingInfo = C.CL_PROFILING_COMMAND_START
+	ProfilingCommandEnd    ProfilingInfo = C.CL_PROFILING_COMMAND_END
+)
+
 func Flush(cq CommandQueue) error {
 	return toError(C.clFlush(cq))
 }
@@ -86,6 +94,13 @@ func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramVa
 
 	return toError(C.clGetEventInfo(event, C.cl_event_info(paramName), C.size_t(paramValueSize), paramValue,
 		(*C.size_t)(paramValueSizeRet)))
+}
+
+func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize Size, paramValue unsafe.Pointer,
+	paramValueSizeRet *Size) error {
+
+	return toError(C.clGetEventProfilingInfo(event, C.cl_profiling_info(paramName), C.size_t(paramValueSize),
+		paramValue, (*C.size_t)(paramValueSizeRet)))
 }
 
 func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus,
