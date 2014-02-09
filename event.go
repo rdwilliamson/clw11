@@ -67,14 +67,6 @@ const (
 	ProfilingCommandEnd    ProfilingInfo = C.CL_PROFILING_COMMAND_END
 )
 
-func Flush(cq CommandQueue) error {
-	return toError(C.clFlush(cq))
-}
-
-func Finish(cq CommandQueue) error {
-	return toError(C.clFinish(cq))
-}
-
 func toCWaitList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_wait_list C.cl_uint) {
 	if wait_list != nil {
 		event_wait_list = (*C.cl_event)(&wait_list[0])

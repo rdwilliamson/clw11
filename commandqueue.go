@@ -28,3 +28,11 @@ func CreateCommandQueue(context Context, device DeviceID, properties CommandQueu
 	result := C.clCreateCommandQueue(context, device, C.cl_command_queue_properties(properties), &err)
 	return CommandQueue(result), toError(err)
 }
+
+func Flush(cq CommandQueue) error {
+	return toError(C.clFlush(cq))
+}
+
+func Finish(cq CommandQueue) error {
+	return toError(C.clFinish(cq))
+}
