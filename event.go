@@ -9,6 +9,13 @@ package clw11
 #else
 #include "CL/opencl.h"
 #endif
+
+extern void eventCallback(cl_event event, cl_int event_command_exec_status, void *user_data);
+
+void callEventCallback(cl_event event, cl_int event_command_exec_status, void *user_data)
+{
+	eventCallback(event, event_command_exec_status, user_data);
+}
 */
 import "C"
 import "unsafe"
@@ -99,5 +106,8 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	callback func(event Event, event_command_exec_status CommandExecutionStatus, user_data interface{}),
 	user_data interface{}) error {
 
-	return nil
+	cCallbackFunction := (*[0]byte)(C.callEventCallback)
+
+	return toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), cCallbackFunction,
+		unsafe.Pointer(uintptr(0))))
 }
