@@ -12,15 +12,29 @@ package clw11
 */
 import "C"
 import (
-	"fmt"
+	"sync"
 	"unsafe"
 )
 
-var eventCallbackMap = make(map[int]func(err string, data []byte))
+type eventCallbackData struct {
+	function func(e Event, ces CommandExecutionStatus, userData interface{})
+	userData interface{}
+}
+
+var (
+	eventCallbackMapLock sync.RWMutex
+	eventCallbackMap     = make(map[uintptr]eventCallbackData)
+	eventCallbackCounter uintptr
+)
 
 var eventCallbackFunc = eventCallback
 
 //export eventCallback
-func eventCallback(event *C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
-	fmt.Println(event, event_command_exec_status, user_data)
+func eventCallback(event C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
+
+	eventCallbackMapLock.RLock()
+	callback := eventCallbackMap[uintptr(user_data)]
+	eventCallbackMapLock.RUnlock()
+
+	callback.function(Event(event), CommandExecutionStatus(event_command_exec_status), callback.userData)
 }

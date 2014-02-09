@@ -106,8 +106,12 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	callback func(event Event, event_command_exec_status CommandExecutionStatus, user_data interface{}),
 	user_data interface{}) error {
 
-	cCallbackFunction := (*[0]byte)(C.callEventCallback)
+	eventCallbackMapLock.Lock()
+	eventCallbackMap[eventCallbackCounter] = eventCallbackData{callback, user_data}
+	mapKey := unsafe.Pointer(eventCallbackCounter)
+	eventCallbackCounter++
+	eventCallbackMapLock.Unlock()
 
-	return toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), cCallbackFunction,
-		unsafe.Pointer(uintptr(0))))
+	return toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
+		mapKey))
 }
