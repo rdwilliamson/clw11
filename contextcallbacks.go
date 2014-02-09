@@ -16,6 +16,8 @@ import (
 	"unsafe"
 )
 
+// FIXME broken, copy event's implementation
+
 var contextCallbackMap = make(map[int]func(err string, data []byte))
 
 var contextCallbackFunc = contextCallback

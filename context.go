@@ -29,7 +29,7 @@ const (
 	ContextPlatform ContextProperties = C.CL_CONTEXT_PLATFORM
 )
 
-var contextCallbackCounter int
+var contextCallbackCounter int // FIXME broken, copy event's implementation
 
 func CreateContext(properties []ContextProperties, devices []DeviceID,
 	callback func(err string, data []byte)) (Context, error) {
@@ -40,6 +40,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
 
+	// FIXME broken, copy event's implementation
 	var cCallbackFunction *[0]byte
 	if callback != nil {
 		contextCallbackMap[contextCallbackCounter] = callback
@@ -52,6 +53,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction,
 		unsafe.Pointer(uintptr(contextCallbackCounter)), &clErr))
 
+	// FIXME broken, copy event's implementation
 	if err := toError(clErr); err != nil {
 		if callback != nil {
 			contextCallbackCounter--
