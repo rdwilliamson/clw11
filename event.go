@@ -107,6 +107,14 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 
 	key := eventCallbackMap.SetCallback(callback, user_data)
 
-	return toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
+	err := toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
 		unsafe.Pointer(key)))
+
+	if err != nil {
+		// If the C side setting of the callback failed GetCallback will remove
+		// the callback from the map preventing a memory leak.
+		eventCallbackMap.GetCallback(key)
+	}
+
+	return err
 }
