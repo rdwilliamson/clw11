@@ -16,25 +16,48 @@ import (
 	"unsafe"
 )
 
+type eventCallbackGoFunction func(e Event, ces CommandExecutionStatus, userData interface{})
+
 type eventCallbackData struct {
-	function func(e Event, ces CommandExecutionStatus, userData interface{})
+	function eventCallbackGoFunction
 	userData interface{}
 }
 
-var (
-	eventCallbackMapLock sync.RWMutex
-	eventCallbackMap     = make(map[uintptr]eventCallbackData)
-	eventCallbackCounter uintptr
-)
+type eventCallbackMapStruct struct {
+	sync.Mutex
+	callbackMap map[uintptr]eventCallbackData
+	counter     uintptr
+}
 
-var eventCallbackFunc = eventCallback
+func (ecm *eventCallbackMapStruct) SetCallback(function eventCallbackGoFunction, userData interface{}) uintptr {
+	ecm.Lock()
+	defer ecm.Unlock()
+
+	key := ecm.counter
+	ecm.callbackMap[key] = eventCallbackData{function, userData}
+	ecm.counter++
+
+	return key
+}
+
+func (ecm *eventCallbackMapStruct) GetCallback(key uintptr) (eventCallbackGoFunction, interface{}) {
+	ecm.Lock()
+	defer ecm.Unlock()
+
+	data := ecm.callbackMap[key]
+	delete(ecm.callbackMap, key)
+
+	return data.function, data.userData
+}
+
+var (
+	eventCallbackFunc = eventCallback
+	eventCallbackMap  = eventCallbackMapStruct{callbackMap: map[uintptr]eventCallbackData{}}
+)
 
 //export eventCallback
 func eventCallback(event C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
 
-	eventCallbackMapLock.RLock()
-	callback := eventCallbackMap[uintptr(user_data)]
-	eventCallbackMapLock.RUnlock()
-
-	callback.function(Event(event), CommandExecutionStatus(event_command_exec_status), callback.userData)
+	callback, userData := eventCallbackMap.GetCallback(uintptr(user_data))
+	callback(Event(event), CommandExecutionStatus(event_command_exec_status), userData)
 }

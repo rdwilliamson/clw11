@@ -102,16 +102,11 @@ func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize 
 		paramValue, (*C.size_t)(paramValueSizeRet)))
 }
 
-func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus,
-	callback func(event Event, event_command_exec_status CommandExecutionStatus, user_data interface{}),
+func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback eventCallbackGoFunction,
 	user_data interface{}) error {
 
-	eventCallbackMapLock.Lock()
-	eventCallbackMap[eventCallbackCounter] = eventCallbackData{callback, user_data}
-	mapKey := unsafe.Pointer(eventCallbackCounter)
-	eventCallbackCounter++
-	eventCallbackMapLock.Unlock()
+	key := eventCallbackMap.SetCallback(callback, user_data)
 
 	return toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
-		mapKey))
+		unsafe.Pointer(key)))
 }
