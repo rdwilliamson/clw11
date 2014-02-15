@@ -48,13 +48,13 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		cCallbackFunction = (*[0]byte)(C.callContextCallback)
 	}
 
-	var clErr C.cl_int
+	var err C.cl_int
 	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
 		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction,
-		unsafe.Pointer(uintptr(contextCallbackCounter)), &clErr))
+		unsafe.Pointer(uintptr(contextCallbackCounter)), &err))
 
 	// FIXME broken, copy event's implementation
-	if err := toError(clErr); err != nil {
+	if err := toError(err); err != nil {
 		if callback != nil {
 			contextCallbackCounter--
 			delete(contextCallbackMap, contextCallbackCounter)
