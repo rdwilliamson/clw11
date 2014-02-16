@@ -59,3 +59,12 @@ func GetKernelWorkGroupInfo(kernel Kernel, device DeviceID, param_name KernelWor
 	return toError(C.clGetKernelWorkGroupInfo(kernel, device, C.cl_kernel_work_group_info(param_name),
 		C.size_t(param_value_size), param_value, (*C.size_t)(param_value_size_ret)))
 }
+
+func EnqueueNDRangeKernel(command_queue CommandQueue, kernel Kernel, global_work_offset, global_work_size,
+	local_work_size []Size, wait_list []Event, event *Event) error {
+
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+	return toError(C.clEnqueueNDRangeKernel(command_queue, kernel, C.cl_uint(len(global_work_offset)),
+		(*C.size_t)(&global_work_offset[0]), (*C.size_t)(&global_work_size[0]), (*C.size_t)(&local_work_size[0]),
+		num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
+}
