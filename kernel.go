@@ -60,6 +60,10 @@ func GetKernelWorkGroupInfo(kernel Kernel, device DeviceID, param_name KernelWor
 		C.size_t(param_value_size), param_value, (*C.size_t)(param_value_size_ret)))
 }
 
+func SetKernelArg(kernel Kernel, arg_index Uint, arg_size Size, arg_value unsafe.Pointer) error {
+	return toError(C.clSetKernelArg(kernel, C.cl_uint(arg_index), C.size_t(arg_size), arg_value))
+}
+
 func EnqueueNDRangeKernel(command_queue CommandQueue, kernel Kernel, global_work_offset, global_work_size,
 	local_work_size []Size, wait_list []Event, event *Event) error {
 
