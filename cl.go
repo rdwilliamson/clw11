@@ -12,10 +12,6 @@ package clw11
 #endif
 */
 import "C"
-import (
-	"reflect"
-	"unsafe"
-)
 
 type (
 	Bool  C.cl_bool
@@ -29,16 +25,3 @@ const (
 	True  = Bool(C.CL_TRUE)
 	False = Bool(C.CL_FALSE)
 )
-
-func toBytes(p unsafe.Pointer, length int) []byte {
-	if p == nil {
-		return nil
-	}
-
-	var result []byte
-	header := (*reflect.SliceHeader)((unsafe.Pointer(&result)))
-	header.Cap = length
-	header.Len = length
-	header.Data = uintptr(p)
-	return result
-}

@@ -77,7 +77,7 @@ func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Memory
 }
 
 func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bool, map_flags MapFlags, offset, cb Size,
-	wait_list []Event, event *Event) ([]byte, error) {
+	wait_list []Event, event *Event) (unsafe.Pointer, error) {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
 
@@ -85,14 +85,14 @@ func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bo
 	mapped := C.clEnqueueMapBuffer(command_queue, buffer, C.cl_bool(blocking_map), C.cl_map_flags(map_flags),
 		C.size_t(offset), C.size_t(cb), num_events_in_wait_list, event_wait_list, (*C.cl_event)(event), &err)
 
-	return toBytes(mapped, int(cb)), toError(err)
+	return mapped, toError(err)
 }
 
-func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Memory, mapped_ptr []byte, wait_list []Event,
+func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Memory, mapped_ptr unsafe.Pointer, wait_list []Event,
 	event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
 
-	return toError(C.clEnqueueUnmapMemObject(command_queue, memobj, unsafe.Pointer(&mapped_ptr[0]),
-		num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
+	return toError(C.clEnqueueUnmapMemObject(command_queue, memobj, mapped_ptr, num_events_in_wait_list,
+		event_wait_list, (*C.cl_event)(event)))
 }
