@@ -119,7 +119,6 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	return err
 }
 
-func WaitForEvents(events []Event) error {
-	event_list, num_events := toEventList(events)
-	return toError(C.clWaitForEvents(num_events, event_list))
+func WaitForEvents(num_events Uint, event_list *Event) error {
+	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
 }
