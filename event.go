@@ -74,6 +74,7 @@ const (
 	ProfilingCommandEnd    ProfilingInfo = C.CL_PROFILING_COMMAND_END
 )
 
+// Converts from slice to pointer to first event and length.
 func toEventList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_wait_list C.cl_uint) {
 	if wait_list != nil && len(wait_list) > 0 {
 		event_wait_list = (*C.cl_event)(&wait_list[0])
@@ -82,16 +83,22 @@ func toEventList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_
 	return
 }
 
+// Creates a user event object.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
 func CreateUserEvent(context Context) (Event, error) {
 	var err C.cl_int
 	result := C.clCreateUserEvent(context, &err)
 	return Event(result), toError(err)
 }
 
+// Sets the execution status of a user event object.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
 func SetUserEventStatus(event Event, execution_status Int) error {
 	return toError(C.clSetUserEventStatus(event, C.cl_int(execution_status)))
 }
 
+// Returns information about the event object.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetEventInfo.html
 func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
@@ -99,6 +106,9 @@ func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramVa
 		(*C.size_t)(paramValueSizeRet)))
 }
 
+// Returns profiling information for the command associated with event if
+// profiling is enabled.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetEventProfilingInfo.html
 func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
@@ -106,6 +116,8 @@ func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize 
 		paramValue, (*C.size_t)(paramValueSizeRet)))
 }
 
+// Registers a user callback function for a specific command execution status.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetEventCallback.html
 func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback eventCallbackGoFunction,
 	user_data interface{}) error {
 
@@ -123,15 +135,22 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	return err
 }
 
+// Waits on the host thread for commands identified by event objects to
+// complete.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clWaitForEvents.html
 func WaitForEvents(wait_list []Event) error {
 	event_list, num_events := toEventList(wait_list)
 	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
 }
 
+// Increments the event reference count.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainEvent.html
 func RetainEvent(event Event) error {
 	return toError(C.clRetainEvent(event))
 }
 
+// Decrements the event reference count.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseEvent.html
 func ReleaseEvent(event Event) error {
 	return toError(C.clReleaseEvent(event))
 }
