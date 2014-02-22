@@ -11,9 +11,7 @@ package clw11
 #endif
 */
 import "C"
-import (
-	"unsafe"
-)
+import "unsafe"
 
 type (
 	Program          C.cl_program

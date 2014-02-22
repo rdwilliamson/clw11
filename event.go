@@ -88,6 +88,10 @@ func CreateUserEvent(context Context) (Event, error) {
 	return Event(result), toError(err)
 }
 
+func SetUserEventStatus(event Event, execution_status Int) error {
+	return toError(C.clSetUserEventStatus(event, C.cl_int(execution_status)))
+}
+
 func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
@@ -121,4 +125,12 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 
 func WaitForEvents(num_events Uint, event_list *Event) error {
 	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
+}
+
+func RetainEvent(event Event) error {
+	return toError(C.clRetainEvent(event))
+}
+
+func ReleaseEvent(event Event) error {
+	return toError(C.clReleaseEvent(event))
 }
