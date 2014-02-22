@@ -116,14 +116,15 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 
 	if err != nil {
 		// If the C side setting of the callback failed GetCallback will remove
-		// the callback from the map preventing a memory leak.
+		// the callback from the map.
 		eventCallbackMap.GetCallback(key)
 	}
 
 	return err
 }
 
-func WaitForEvents(num_events Uint, event_list *Event) error {
+func WaitForEvents(wait_list []Event) error {
+	event_list, num_events := toEventList(wait_list)
 	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
 }
 
