@@ -72,3 +72,26 @@ func EnqueueNDRangeKernel(command_queue CommandQueue, kernel Kernel, global_work
 		(*C.size_t)(&global_work_offset[0]), (*C.size_t)(&global_work_size[0]), (*C.size_t)(&local_work_size[0]),
 		num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
+
+func EnqueueTask(command_queue CommandQueue, kernel Kernel, wait_list []Event, event *Event) error {
+
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+	return toError(C.clEnqueueTask(command_queue, kernel, num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
+}
+
+func EnqueueNativeKernel(command_queue CommandQueue, user_func unsafe.Pointer, args unsafe.Pointer, cb_args Size,
+	mem_object_list []Memory, args_mem_loc *unsafe.Pointer, wait_list []Event, event *Event) error {
+
+	var num_mem_object Uint
+	var mem_list *Memory
+	if mem_object_list != nil && len(mem_object_list) > 0 {
+		num_mem_object = Uint(len(mem_object_list))
+		mem_list = &mem_object_list[0]
+	}
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueNativeKernel(command_queue, (*[0]byte)(user_func), args, C.size_t(cb_args),
+		C.cl_uint(num_mem_object), (*C.cl_mem)(mem_list), args_mem_loc, num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
+}

@@ -75,7 +75,7 @@ const (
 )
 
 func toEventList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_wait_list C.cl_uint) {
-	if wait_list != nil {
+	if wait_list != nil && len(wait_list) > 0 {
 		event_wait_list = (*C.cl_event)(&wait_list[0])
 		num_events_in_wait_list = C.cl_uint(len(wait_list))
 	}
