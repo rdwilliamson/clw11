@@ -107,6 +107,7 @@ const (
 	FPRoundToInf     DeviceFPConfig = C.CL_FP_ROUND_TO_INF
 	FPRoundToNearest DeviceFPConfig = C.CL_FP_ROUND_TO_NEAREST
 	FPRoundToZero    DeviceFPConfig = C.CL_FP_ROUND_TO_ZERO
+	FPSoftFloat      DeviceFPConfig = C.CL_FP_SOFT_FLOAT
 )
 
 const (
