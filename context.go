@@ -23,51 +23,91 @@ import "unsafe"
 type (
 	Context           C.cl_context
 	ContextProperties C.cl_context_properties
+	ContextInfo       C.cl_context_info
 )
 
 const (
 	ContextPlatform ContextProperties = C.CL_CONTEXT_PLATFORM
 )
 
-var contextCallbackCounter int // FIXME broken, copy event's implementation
+const (
+	ContextReferenceCount ContextInfo = C.CL_CONTEXT_REFERENCE_COUNT
+	ContextDevices        ContextInfo = C.CL_CONTEXT_DEVICES
+	ContextPropertiesInfo ContextInfo = C.CL_CONTEXT_PROPERTIES // Appended "Info" due to conflict with type.
+	ContextNumDevices     ContextInfo = C.CL_CONTEXT_NUM_DEVICES
+)
 
+// Appends 0 terminator and converts from slice to pointer to first property and
+// length.
+func toPropertiesPtr(properties []ContextProperties) *C.cl_context_properties {
+
+	if properties == nil {
+		return nil
+	}
+
+	properties = append(properties, 0)
+	return (*C.cl_context_properties)(&properties[0])
+}
+
+// Creates an OpenCL context. The properties do not have to be terminated with
+// 0.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContext.html
 func CreateContext(properties []ContextProperties, devices []DeviceID, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
 
-	var propertiesValue *C.cl_context_properties
-	if properties != nil {
-		properties = append(properties, 0)
-		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
-	}
-
 	key := contextCallbacks.add(callback, user_data)
 
-	var clErr C.cl_int
-	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
-		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &clErr))
-	err := toError(clErr)
+	var err C.cl_int
+	context := C.clCreateContext(toPropertiesPtr(properties), C.cl_uint(len(devices)),
+		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
 
-	if err != nil {
+	if err != C.CL_SUCCESS {
 		// If the C side setting of the callback failed GetCallback will remove
 		// the callback from the map.
 		contextCallbacks.get(key)
 	}
 
-	return context, err
+	return Context(context), toError(err)
 }
 
-func CreateContextFromType() {
+// Create an OpenCL context from a device type that identifies the specific
+// device(s) to use.The properties do not have to be terminated with 0.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContextFromType.html
+func CreateContextFromType(properties []ContextProperties, device_type DeviceType, callback ContextCallbackFunc,
+	user_data interface{}) (Context, error) {
 
+	key := contextCallbacks.add(callback, user_data)
+
+	var err C.cl_int
+	context := C.clCreateContextFromType(toPropertiesPtr(properties), C.cl_device_type(device_type),
+		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
+
+	if err != C.CL_SUCCESS {
+		// If the C side setting of the callback failed GetCallback will remove
+		// the callback from the map.
+		contextCallbacks.get(key)
+	}
+
+	return Context(context), toError(err)
 }
 
-func RetainContext() {
-
+// Increment the context reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainContext.html
+func RetainContext(context Context) error {
+	return toError(C.clRetainContext(context))
 }
 
-func ReleaseContext() {
-
+// Decrement the context reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseContext.html
+func ReleaseContext(context Context) error {
+	return toError(C.clReleaseContext(context))
 }
 
-func GetContextInfo() {
+// Query information about a context.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetContextInfo.html
+func GetContextInfo(context Context, param_name ContextInfo, param_value_size Size, param_value unsafe.Pointer,
+	param_value_size_ret *Size) error {
 
+	return toError(C.clGetContextInfo(context, C.cl_context_info(param_name), C.size_t(param_value_size), param_value,
+		(*C.size_t)(param_value_size_ret)))
 }
