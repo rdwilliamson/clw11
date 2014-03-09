@@ -58,4 +58,6 @@ var (
 //export contextCallback
 func contextCallback(errinfo *C.char, private_info unsafe.Pointer, cb C.size_t, user_data unsafe.Pointer) {
 
+	callback, userData := contextCallbacks.get(uintptr(user_data))
+	callback(C.GoString(errinfo), C.GoBytes(private_info, C.int(cb)), userData)
 }
