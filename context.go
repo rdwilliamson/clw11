@@ -37,29 +37,22 @@ const (
 	ContextNumDevices     ContextInfo = C.CL_CONTEXT_NUM_DEVICES
 )
 
-// Appends 0 terminator and converts from slice to pointer to first property and
-// length.
-func toPropertiesPtr(properties []ContextProperties) *C.cl_context_properties {
-
-	if properties == nil {
-		return nil
-	}
-
-	properties = append(properties, 0)
-	return (*C.cl_context_properties)(&properties[0])
-}
-
 // Creates an OpenCL context. The properties do not have to be terminated with
 // 0.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContext.html
 func CreateContext(properties []ContextProperties, devices []DeviceID, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
 
+	var propertiesPtr *C.cl_context_properties
+	if properties != nil {
+		propertiesPtr = (*C.cl_context_properties)(&properties[0])
+	}
+
 	key := contextCallbacks.add(callback, user_data)
 
 	var err C.cl_int
-	context := C.clCreateContext(toPropertiesPtr(properties), C.cl_uint(len(devices)),
-		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
+	context := C.clCreateContext(propertiesPtr, C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])),
+		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS {
 		// If the C side setting of the callback failed GetCallback will remove
@@ -76,10 +69,15 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 func CreateContextFromType(properties []ContextProperties, device_type DeviceType, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
 
+	var propertiesPtr *C.cl_context_properties
+	if properties != nil {
+		propertiesPtr = (*C.cl_context_properties)(&properties[0])
+	}
+
 	key := contextCallbacks.add(callback, user_data)
 
 	var err C.cl_int
-	context := C.clCreateContextFromType(toPropertiesPtr(properties), C.cl_device_type(device_type),
+	context := C.clCreateContextFromType(propertiesPtr, C.cl_device_type(device_type),
 		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS {
