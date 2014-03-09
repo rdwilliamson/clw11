@@ -23,41 +23,41 @@ type eventCallbackData struct {
 	userData interface{}
 }
 
-type eventCallbackMapStruct struct {
+type eventCallbackCollection struct {
 	sync.Mutex
 	callbackMap map[uintptr]eventCallbackData
 	counter     uintptr
 }
 
-func (ecm *eventCallbackMapStruct) setCallback(function EventCallbackFunc, userData interface{}) uintptr {
+func (ecc *eventCallbackCollection) add(function EventCallbackFunc, userData interface{}) uintptr {
 
-	ecm.Lock()
-	key := ecm.counter
-	ecm.counter++
-	ecm.callbackMap[key] = eventCallbackData{function, userData}
-	ecm.Unlock()
+	ecc.Lock()
+	key := ecc.counter
+	ecc.counter++
+	ecc.callbackMap[key] = eventCallbackData{function, userData}
+	ecc.Unlock()
 
 	return key
 }
 
-func (ecm *eventCallbackMapStruct) getCallback(key uintptr) (EventCallbackFunc, interface{}) {
+func (ecc *eventCallbackCollection) get(key uintptr) (EventCallbackFunc, interface{}) {
 
-	ecm.Lock()
-	data := ecm.callbackMap[key]
-	delete(ecm.callbackMap, key)
-	ecm.Unlock()
+	ecc.Lock()
+	data := ecc.callbackMap[key]
+	delete(ecc.callbackMap, key)
+	ecc.Unlock()
 
 	return data.function, data.userData
 }
 
 var (
 	EventCallbackFunction = eventCallback
-	eventCallbackMap      = eventCallbackMapStruct{callbackMap: map[uintptr]eventCallbackData{}}
+	eventCallbacks        = eventCallbackCollection{callbackMap: map[uintptr]eventCallbackData{}}
 )
 
 //export eventCallback
 func eventCallback(event C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
 
-	callback, userData := eventCallbackMap.getCallback(uintptr(user_data))
+	callback, userData := eventCallbacks.get(uintptr(user_data))
 	callback(Event(event), CommandExecutionStatus(event_command_exec_status), userData)
 }

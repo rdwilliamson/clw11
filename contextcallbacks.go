@@ -23,36 +23,36 @@ type contextCallbackData struct {
 	userData interface{}
 }
 
-type contextCallbackMapStruct struct {
+type contextCallbackCollection struct {
 	sync.Mutex
 	callbackMap map[uintptr]contextCallbackData
 	counter     uintptr
 }
 
-func (ccm *contextCallbackMapStruct) setCallback(function ContextCallbackFunc, userData interface{}) uintptr {
+func (ccc *contextCallbackCollection) add(function ContextCallbackFunc, userData interface{}) uintptr {
 
-	ccm.Lock()
-	key := ccm.counter
-	ccm.counter++
-	ccm.callbackMap[key] = contextCallbackData{function, userData}
-	ccm.Unlock()
+	ccc.Lock()
+	key := ccc.counter
+	ccc.counter++
+	ccc.callbackMap[key] = contextCallbackData{function, userData}
+	ccc.Unlock()
 
 	return key
 }
 
-func (ccm *contextCallbackMapStruct) getCallback(key uintptr) (ContextCallbackFunc, interface{}) {
+func (ccc *contextCallbackCollection) get(key uintptr) (ContextCallbackFunc, interface{}) {
 
-	ccm.Lock()
-	data := ccm.callbackMap[key]
-	delete(ccm.callbackMap, key)
-	ccm.Unlock()
+	ccc.Lock()
+	data := ccc.callbackMap[key]
+	delete(ccc.callbackMap, key)
+	ccc.Unlock()
 
 	return data.function, data.userData
 }
 
 var (
 	contextCallbackFunction = contextCallback
-	contextCallbackMap      = contextCallbackMapStruct{callbackMap: map[uintptr]contextCallbackData{}}
+	contextCallbacks        = contextCallbackCollection{callbackMap: map[uintptr]contextCallbackData{}}
 )
 
 //export contextCallback

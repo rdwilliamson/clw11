@@ -40,7 +40,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
 
-	key := contextCallbackMap.setCallback(callback, user_data)
+	key := contextCallbacks.add(callback, user_data)
 
 	var clErr C.cl_int
 	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
@@ -50,7 +50,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 	if err != nil {
 		// If the C side setting of the callback failed GetCallback will remove
 		// the callback from the map.
-		contextCallbackMap.getCallback(key)
+		contextCallbacks.get(key)
 	}
 
 	return context, err
