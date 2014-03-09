@@ -28,11 +28,16 @@ const (
 	PlatformExtensions PlatformInfo = C.CL_PLATFORM_EXTENSIONS
 )
 
+// Obtain the list of platforms available.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetPlatformIDs.html
 func GetPlatformIDs(numEntries Uint, platforms *PlatformID, numPlatforms *Uint) error {
+
 	return toError(C.clGetPlatformIDs(C.cl_uint(numEntries), (*C.cl_platform_id)(platforms),
 		(*C.cl_uint)(numPlatforms)))
 }
 
+// Get specific information about the OpenCL platform.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetPlatformInfo.html
 func GetPlatformInfo(platform PlatformID, paramName PlatformInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 

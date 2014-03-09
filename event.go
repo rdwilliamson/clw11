@@ -76,6 +76,7 @@ const (
 
 // Converts from slice to pointer to first event and length.
 func toEventList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_wait_list C.cl_uint) {
+
 	if wait_list != nil && len(wait_list) > 0 {
 		event_wait_list = (*C.cl_event)(&wait_list[0])
 		num_events_in_wait_list = C.cl_uint(len(wait_list))
@@ -86,6 +87,7 @@ func toEventList(wait_list []Event) (event_wait_list *C.cl_event, num_events_in_
 // Creates a user event object.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
 func CreateUserEvent(context Context) (Event, error) {
+
 	var err C.cl_int
 	result := C.clCreateUserEvent(context, &err)
 	return Event(result), toError(err)
@@ -94,6 +96,7 @@ func CreateUserEvent(context Context) (Event, error) {
 // Sets the execution status of a user event object.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
 func SetUserEventStatus(event Event, execution_status Int) error {
+
 	return toError(C.clSetUserEventStatus(event, C.cl_int(execution_status)))
 }
 
@@ -139,6 +142,7 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 // complete.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clWaitForEvents.html
 func WaitForEvents(wait_list []Event) error {
+
 	event_list, num_events := toEventList(wait_list)
 	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
 }
@@ -146,11 +150,13 @@ func WaitForEvents(wait_list []Event) error {
 // Increments the event reference count.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainEvent.html
 func RetainEvent(event Event) error {
+
 	return toError(C.clRetainEvent(event))
 }
 
 // Decrements the event reference count.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseEvent.html
 func ReleaseEvent(event Event) error {
+
 	return toError(C.clReleaseEvent(event))
 }

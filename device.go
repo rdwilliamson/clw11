@@ -127,6 +127,8 @@ const (
 	ExecNativeKernel DeviceExecCapabilities = C.CL_EXEC_NATIVE_KERNEL
 )
 
+// Obtain the list of devices available on a platform.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetDeviceIDs.html
 func GetDeviceIDs(platform PlatformID, deviceType DeviceType, numEntries Uint, devices *DeviceID,
 	numDevices *Uint) error {
 
@@ -134,6 +136,8 @@ func GetDeviceIDs(platform PlatformID, deviceType DeviceType, numEntries Uint, d
 		(*C.cl_device_id)(devices), (*C.cl_uint)(numDevices)))
 }
 
+// Get information about an OpenCL device.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetDeviceInfo.html
 func GetDeviceInfo(device DeviceID, paramName DeviceInfo, paramValueSize Size, paramValue unsafe.Pointer,
 	paramValueSizeRet *Size) error {
 
