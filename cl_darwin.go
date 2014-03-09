@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	CGLSharegroup     ContextProperties = C.CL_CGL_SHAREGROUP_KHR
 	GLShareGroupApple ContextProperties = C.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE
 )
 
