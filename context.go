@@ -31,8 +31,8 @@ const (
 
 var contextCallbackCounter int // FIXME broken, copy event's implementation
 
-func CreateContext(properties []ContextProperties, devices []DeviceID,
-	callback func(err string, data []byte)) (Context, error) {
+func CreateContext(properties []ContextProperties, devices []DeviceID, callback ContextCallbackFunc,
+	user_data interface{}) (Context, error) {
 
 	var propertiesValue *C.cl_context_properties
 	if properties != nil {
@@ -40,27 +40,34 @@ func CreateContext(properties []ContextProperties, devices []DeviceID,
 		propertiesValue = (*C.cl_context_properties)(unsafe.Pointer(&properties[0]))
 	}
 
-	// FIXME broken, copy event's implementation
-	var cCallbackFunction *[0]byte
-	if callback != nil {
-		contextCallbackMap[contextCallbackCounter] = callback
-		contextCallbackCounter++
-		cCallbackFunction = (*[0]byte)(C.callContextCallback)
-	}
+	key := contextCallbackMap.setCallback(callback, user_data)
 
-	var err C.cl_int
+	var clErr C.cl_int
 	context := Context(C.clCreateContext(propertiesValue, C.cl_uint(len(devices)),
-		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), cCallbackFunction,
-		unsafe.Pointer(uintptr(contextCallbackCounter)), &err))
+		(*C.cl_device_id)(unsafe.Pointer(&devices[0])), (*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &clErr))
+	err := toError(clErr)
 
-	// FIXME broken, copy event's implementation
-	if err := toError(err); err != nil {
-		if callback != nil {
-			contextCallbackCounter--
-			delete(contextCallbackMap, contextCallbackCounter)
-		}
-		return context, err
+	if err != nil {
+		// If the C side setting of the callback failed GetCallback will remove
+		// the callback from the map.
+		contextCallbackMap.getCallback(key)
 	}
 
-	return context, nil
+	return context, err
+}
+
+func CreateContextFromType() {
+
+}
+
+func RetainContext() {
+
+}
+
+func ReleaseContext() {
+
+}
+
+func GetContextInfo() {
+
 }

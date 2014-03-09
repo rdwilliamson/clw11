@@ -12,30 +12,50 @@ package clw11
 */
 import "C"
 import (
-	"fmt"
+	"sync"
 	"unsafe"
 )
 
-// FIXME broken, copy event's implementation
+type ContextCallbackFunc func(err string, data []byte, userData interface{})
 
-var contextCallbackMap = make(map[int]func(err string, data []byte))
+type contextCallbackData struct {
+	function ContextCallbackFunc
+	userData interface{}
+}
 
-var contextCallbackFunc = contextCallback
+type contextCallbackMapStruct struct {
+	sync.Mutex
+	callbackMap map[uintptr]contextCallbackData
+	counter     uintptr
+}
+
+func (ccm *contextCallbackMapStruct) setCallback(function ContextCallbackFunc, userData interface{}) uintptr {
+
+	ccm.Lock()
+	key := ccm.counter
+	ccm.counter++
+	ccm.callbackMap[key] = contextCallbackData{function, userData}
+	ccm.Unlock()
+
+	return key
+}
+
+func (ccm *contextCallbackMapStruct) getCallback(key uintptr) (ContextCallbackFunc, interface{}) {
+
+	ccm.Lock()
+	data := ccm.callbackMap[key]
+	delete(ccm.callbackMap, key)
+	ccm.Unlock()
+
+	return data.function, data.userData
+}
+
+var (
+	contextCallbackFunction = contextCallback
+	contextCallbackMap      = contextCallbackMapStruct{callbackMap: map[uintptr]contextCallbackData{}}
+)
 
 //export contextCallback
 func contextCallback(errinfo *C.char, private_info unsafe.Pointer, cb C.size_t, user_data unsafe.Pointer) {
-	errString := C.GoString(errinfo)
-	private := C.GoBytes(private_info, C.int(cb))
-	functionID := int(uintptr(user_data))
-	fmt.Println(errString)
-	fmt.Println(private)
-	fmt.Println(functionID)
-	// TODO use user data to lookup the callback function. User can use closures
-	// to pass private data.
 
-	function := contextCallbackMap[functionID]
-	if function == nil {
-		panic("could not find callback")
-	}
-	function(errString, private)
 }
