@@ -16,10 +16,10 @@ import (
 	"unsafe"
 )
 
-type eventCallbackGoFunction func(e Event, ces CommandExecutionStatus, userData interface{})
+type EventCallbackFunc func(e Event, ces CommandExecutionStatus, userData interface{})
 
 type eventCallbackData struct {
-	function eventCallbackGoFunction
+	function EventCallbackFunc
 	userData interface{}
 }
 
@@ -29,7 +29,7 @@ type eventCallbackMapStruct struct {
 	counter     uintptr
 }
 
-func (ecm *eventCallbackMapStruct) setCallback(function eventCallbackGoFunction, userData interface{}) uintptr {
+func (ecm *eventCallbackMapStruct) setCallback(function EventCallbackFunc, userData interface{}) uintptr {
 
 	ecm.Lock()
 	key := ecm.counter
@@ -40,7 +40,7 @@ func (ecm *eventCallbackMapStruct) setCallback(function eventCallbackGoFunction,
 	return key
 }
 
-func (ecm *eventCallbackMapStruct) getCallback(key uintptr) (eventCallbackGoFunction, interface{}) {
+func (ecm *eventCallbackMapStruct) getCallback(key uintptr) (EventCallbackFunc, interface{}) {
 
 	ecm.Lock()
 	data := ecm.callbackMap[key]
@@ -51,8 +51,8 @@ func (ecm *eventCallbackMapStruct) getCallback(key uintptr) (eventCallbackGoFunc
 }
 
 var (
-	eventCallbackFunc = eventCallback
-	eventCallbackMap  = eventCallbackMapStruct{callbackMap: map[uintptr]eventCallbackData{}}
+	EventCallbackFunction = eventCallback
+	eventCallbackMap      = eventCallbackMapStruct{callbackMap: map[uintptr]eventCallbackData{}}
 )
 
 //export eventCallback

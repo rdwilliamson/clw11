@@ -121,7 +121,7 @@ func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize 
 
 // Registers a user callback function for a specific command execution status.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetEventCallback.html
-func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback eventCallbackGoFunction,
+func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback EventCallbackFunc,
 	user_data interface{}) error {
 
 	key := eventCallbackMap.setCallback(callback, user_data)
