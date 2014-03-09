@@ -124,7 +124,7 @@ func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize 
 func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback eventCallbackGoFunction,
 	user_data interface{}) error {
 
-	key := eventCallbackMap.SetCallback(callback, user_data)
+	key := eventCallbackMap.setCallback(callback, user_data)
 
 	err := toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
 		unsafe.Pointer(key)))
@@ -132,7 +132,7 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	if err != nil {
 		// If the C side setting of the callback failed GetCallback will remove
 		// the callback from the map.
-		eventCallbackMap.GetCallback(key)
+		eventCallbackMap.getCallback(key)
 	}
 
 	return err

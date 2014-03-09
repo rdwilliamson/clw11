@@ -29,23 +29,23 @@ type eventCallbackMapStruct struct {
 	counter     uintptr
 }
 
-func (ecm *eventCallbackMapStruct) SetCallback(function eventCallbackGoFunction, userData interface{}) uintptr {
-	ecm.Lock()
-	defer ecm.Unlock()
+func (ecm *eventCallbackMapStruct) setCallback(function eventCallbackGoFunction, userData interface{}) uintptr {
 
+	ecm.Lock()
 	key := ecm.counter
-	ecm.callbackMap[key] = eventCallbackData{function, userData}
 	ecm.counter++
+	ecm.callbackMap[key] = eventCallbackData{function, userData}
+	ecm.Unlock()
 
 	return key
 }
 
-func (ecm *eventCallbackMapStruct) GetCallback(key uintptr) (eventCallbackGoFunction, interface{}) {
-	ecm.Lock()
-	defer ecm.Unlock()
+func (ecm *eventCallbackMapStruct) getCallback(key uintptr) (eventCallbackGoFunction, interface{}) {
 
+	ecm.Lock()
 	data := ecm.callbackMap[key]
 	delete(ecm.callbackMap, key)
+	ecm.Unlock()
 
 	return data.function, data.userData
 }
@@ -58,6 +58,6 @@ var (
 //export eventCallback
 func eventCallback(event C.cl_event, event_command_exec_status C.cl_int, user_data unsafe.Pointer) {
 
-	callback, userData := eventCallbackMap.GetCallback(uintptr(user_data))
+	callback, userData := eventCallbackMap.getCallback(uintptr(user_data))
 	callback(Event(event), CommandExecutionStatus(event_command_exec_status), userData)
 }
