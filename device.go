@@ -96,7 +96,7 @@ const (
 	DeviceNativeVectorWidthFloat     DeviceInfo = C.CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT
 	DeviceNativeVectorWidthDouble    DeviceInfo = C.CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE
 	DeviceNativeVectorWidthHalf      DeviceInfo = C.CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF
-	DeviceOpenclCVersion             DeviceInfo = C.CL_DEVICE_OPENCL_C_VERSION
+	DeviceOpenCLCVersion             DeviceInfo = C.CL_DEVICE_OPENCL_C_VERSION
 )
 
 // Bitfield.
