@@ -37,8 +37,7 @@ const (
 	ContextNumDevices     ContextInfo = C.CL_CONTEXT_NUM_DEVICES
 )
 
-// Creates an OpenCL context. The properties do not have to be terminated with
-// 0.
+// Creates an OpenCL context.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContext.html
 func CreateContext(properties []ContextProperties, devices []DeviceID, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
@@ -64,7 +63,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 }
 
 // Create an OpenCL context from a device type that identifies the specific
-// device(s) to use.The properties do not have to be terminated with 0.
+// device(s) to use.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContextFromType.html
 func CreateContextFromType(properties []ContextProperties, device_type DeviceType, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
