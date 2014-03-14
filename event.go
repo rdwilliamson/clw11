@@ -1,9 +1,6 @@
 package clw11
 
 /*
-#cgo windows linux LDFLAGS: -lOpenCL
-#cgo darwin LDFLAGS: -framework OpenCL
-
 #ifdef __APPLE__
 #include "OpenCL/opencl.h"
 #else
