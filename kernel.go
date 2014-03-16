@@ -78,10 +78,10 @@ func EnqueueTask(command_queue CommandQueue, kernel Kernel, wait_list []Event, e
 }
 
 func EnqueueNativeKernel(command_queue CommandQueue, user_func unsafe.Pointer, args unsafe.Pointer, cb_args Size,
-	mem_object_list []Memory, args_mem_loc *unsafe.Pointer, wait_list []Event, event *Event) error {
+	mem_object_list []Mem, args_mem_loc *unsafe.Pointer, wait_list []Event, event *Event) error {
 
 	var num_mem_object Uint
-	var mem_list *Memory
+	var mem_list *Mem
 	if mem_object_list != nil && len(mem_object_list) > 0 {
 		num_mem_object = Uint(len(mem_object_list))
 		mem_list = &mem_object_list[0]

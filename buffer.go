@@ -13,19 +13,19 @@ import (
 )
 
 type (
-	Memory      C.cl_mem
-	MemoryFlags C.cl_mem_flags
-	MapFlags    C.cl_map_flags
+	Mem      C.cl_mem
+	MemFlags C.cl_mem_flags
+	MapFlags C.cl_map_flags
 )
 
 // Bitfield.
 const (
-	MemoryReadWrite        MemoryFlags = C.CL_MEM_READ_WRITE
-	MemoryWriteOnly        MemoryFlags = C.CL_MEM_WRITE_ONLY
-	MemoryReadOnly         MemoryFlags = C.CL_MEM_READ_ONLY
-	MemoryUseHostPointer   MemoryFlags = C.CL_MEM_USE_HOST_PTR
-	MemoryAllocHostPointer MemoryFlags = C.CL_MEM_ALLOC_HOST_PTR
-	MemoryCopyHostPointer  MemoryFlags = C.CL_MEM_COPY_HOST_PTR
+	MemReadWrite        MemFlags = C.CL_MEM_READ_WRITE
+	MemWriteOnly        MemFlags = C.CL_MEM_WRITE_ONLY
+	MemReadOnly         MemFlags = C.CL_MEM_READ_ONLY
+	MemUseHostPointer   MemFlags = C.CL_MEM_USE_HOST_PTR
+	MemAllocHostPointer MemFlags = C.CL_MEM_ALLOC_HOST_PTR
+	MemCopyHostPointer  MemFlags = C.CL_MEM_COPY_HOST_PTR
 )
 
 // Bitfield.
@@ -36,27 +36,27 @@ const (
 
 // Creates a buffer object.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateBuffer.html
-func CreateBuffer(context Context, flags MemoryFlags, size Size, host_ptr unsafe.Pointer) (Memory, error) {
+func CreateBuffer(context Context, flags MemFlags, size Size, host_ptr unsafe.Pointer) (Mem, error) {
 
 	var err C.cl_int
 	memory := C.clCreateBuffer(context, C.cl_mem_flags(flags), C.size_t(size), host_ptr, &err)
 
-	return Memory(memory), toError(err)
+	return Mem(memory), toError(err)
 }
 
 // Increments the memory object reference count.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainMemObject.html
-func RetainMemObject(memobject Memory) error {
-	return toError(C.clRetainMemObject(memobject))
+func RetainMemObject(memobj Mem) error {
+	return toError(C.clRetainMemObject(memobj))
 }
 
 // Decrements the memory object reference count.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseMemObject.html
-func ReleaseMemObject(memobject Memory) error {
-	return toError(C.clReleaseMemObject(memobject))
+func ReleaseMemObject(memobj Mem) error {
+	return toError(C.clReleaseMemObject(memobj))
 }
 
-func EnqueueReadBuffer(command_queue CommandQueue, buffer Memory, blocking_read Bool, offset, cb Size,
+func EnqueueReadBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bool, offset, cb Size,
 	ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
@@ -65,7 +65,7 @@ func EnqueueReadBuffer(command_queue CommandQueue, buffer Memory, blocking_read 
 		C.size_t(cb), ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
-func EnqueueWriteBuffer(command_queue CommandQueue, buffer Memory, blocking_read Bool, offset, cb Size,
+func EnqueueWriteBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bool, offset, cb Size,
 	ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
@@ -74,7 +74,7 @@ func EnqueueWriteBuffer(command_queue CommandQueue, buffer Memory, blocking_read
 		C.size_t(cb), ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
-func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Memory, src_offset, dst_offset, cb Size,
+func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Mem, src_offset, dst_offset, cb Size,
 	wait_list []Event, event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
@@ -83,7 +83,7 @@ func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Memory
 		C.size_t(dst_offset), C.size_t(cb), num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
-func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bool, map_flags MapFlags, offset, cb Size,
+func EnqueueMapBuffer(command_queue CommandQueue, buffer Mem, blocking_map Bool, map_flags MapFlags, offset, cb Size,
 	wait_list []Event, event *Event) (unsafe.Pointer, error) {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
@@ -95,7 +95,7 @@ func EnqueueMapBuffer(command_queue CommandQueue, buffer Memory, blocking_map Bo
 	return mapped, toError(err)
 }
 
-func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Memory, mapped_ptr unsafe.Pointer, wait_list []Event,
+func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr unsafe.Pointer, wait_list []Event,
 	event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
