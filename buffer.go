@@ -34,6 +34,8 @@ const (
 	MapWrite MapFlags = C.CL_MAP_WRITE
 )
 
+// Creates a buffer object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateBuffer.html
 func CreateBuffer(context Context, flags MemoryFlags, size Size, host_ptr unsafe.Pointer) (Memory, error) {
 
 	var err C.cl_int
@@ -42,6 +44,14 @@ func CreateBuffer(context Context, flags MemoryFlags, size Size, host_ptr unsafe
 	return Memory(memory), toError(err)
 }
 
+// Increments the memory object reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainMemObject.html
+func RetainMemObject(memobject Memory) error {
+	return toError(C.clRetainMemObject(memobject))
+}
+
+// Decrements the memory object reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseMemObject.html
 func ReleaseMemObject(memobject Memory) error {
 	return toError(C.clReleaseMemObject(memobject))
 }
