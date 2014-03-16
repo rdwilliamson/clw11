@@ -53,3 +53,23 @@ func RetainCommandQueue(command_queue CommandQueue) error {
 func ReleaseCommandQueue(command_queue CommandQueue) error {
 	return toError(C.clReleaseCommandQueue(command_queue))
 }
+
+// Enqueues a marker command.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMarker.html
+func EnqueueMarker(command_queue CommandQueue, event *Event) error {
+	return toError(C.clEnqueueMarker(command_queue, (*C.cl_event)(event)))
+}
+
+// Enqueues a wait for a specific event or a list of events to complete before
+// any future commands queued in the command-queue are executed.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueWaitForEvents.html
+func EnqueueWaitForEvents(command_queue CommandQueue, wait_list []Event) error {
+	event_list, num_events := toEventList(wait_list)
+	return toError(C.clEnqueueWaitForEvents(command_queue, num_events, event_list))
+}
+
+// A synchronization point that enqueues a barrier operation.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueBarrier.html
+func EnqueueBarrier(command_queue CommandQueue) error {
+	return toError(C.clEnqueueBarrier(command_queue))
+}
