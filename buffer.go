@@ -13,9 +13,11 @@ import (
 )
 
 type (
-	Mem      C.cl_mem
-	MemFlags C.cl_mem_flags
-	MapFlags C.cl_map_flags
+	Mem              C.cl_mem
+	MemFlags         C.cl_mem_flags
+	MapFlags         C.cl_map_flags
+	BufferRegion     C.cl_buffer_region
+	BufferCreateType C.cl_buffer_create_type
 )
 
 // Bitfield.
@@ -34,12 +36,29 @@ const (
 	MapWrite MapFlags = C.CL_MAP_WRITE
 )
 
+const (
+	BufferCreateTypeRegion BufferCreateType = C.CL_BUFFER_CREATE_TYPE_REGION
+)
+
 // Creates a buffer object.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateBuffer.html
 func CreateBuffer(context Context, flags MemFlags, size Size, host_ptr unsafe.Pointer) (Mem, error) {
 
 	var err C.cl_int
 	memory := C.clCreateBuffer(context, C.cl_mem_flags(flags), C.size_t(size), host_ptr, &err)
+
+	return Mem(memory), toError(err)
+}
+
+// Creates a buffer object (referred to as a sub-buffer object) from an existing
+// buffer object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateSubBuffer.html
+func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create_type BufferCreateType, buffer_create_info unsafe.Pointer,
+	errcode_ret *Int) (Mem, error) {
+
+	var err C.cl_int
+	memory := C.clCreateSubBuffer(buffer, C.cl_mem_flags(flags), C.cl_buffer_create_type(buffer_create_type),
+		buffer_create_info, &err)
 
 	return Mem(memory), toError(err)
 }
@@ -56,6 +75,8 @@ func ReleaseMemObject(memobj Mem) error {
 	return toError(C.clReleaseMemObject(memobj))
 }
 
+// Enqueue commands to read from a buffer object to host memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueReadBuffer.html
 func EnqueueReadBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bool, offset, cb Size,
 	ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
@@ -65,6 +86,8 @@ func EnqueueReadBuffer(command_queue CommandQueue, buffer Mem, blocking_read Boo
 		C.size_t(cb), ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
+// Enqueue commands to write to a buffer object from host memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueWriteBuffer.html
 func EnqueueWriteBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bool, offset, cb Size,
 	ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
@@ -74,6 +97,38 @@ func EnqueueWriteBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bo
 		C.size_t(cb), ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
+// Enqueue commands to read from a rectangular region from a buffer object to
+// host memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueReadBufferRect.html
+func EnqueueReadBufferRect(command_queue CommandQueue, buffer Mem, blocking_read Bool, buffer_origin, host_origin,
+	region [3]Size, buffer_row_pitch, buffer_slice_pitch, host_row_pitch, host_slice_pitch Size, ptr unsafe.Pointer,
+	wait_list []Event, event *Event) error {
+
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueReadBufferRect(command_queue, buffer, C.cl_bool(blocking_read),
+		(*C.size_t)(&buffer_origin[0]), (*C.size_t)(&host_origin[0]), (*C.size_t)(&region[0]),
+		C.size_t(buffer_row_pitch), C.size_t(buffer_slice_pitch), C.size_t(host_row_pitch), C.size_t(host_slice_pitch),
+		ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
+}
+
+// Enqueue commands to write a rectangular region to a buffer object from host
+// memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueWriteBufferRect.html
+func EnqueueWriteBufferRect(command_queue CommandQueue, buffer Mem, blocking_read Bool, buffer_origin, host_origin,
+	region [3]Size, buffer_row_pitch, buffer_slice_pitch, host_row_pitch, host_slice_pitch Size, ptr unsafe.Pointer,
+	wait_list []Event, event *Event) error {
+
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueWriteBufferRect(command_queue, buffer, C.cl_bool(blocking_read),
+		(*C.size_t)(&buffer_origin[0]), (*C.size_t)(&host_origin[0]), (*C.size_t)(&region[0]),
+		C.size_t(buffer_row_pitch), C.size_t(buffer_slice_pitch), C.size_t(host_row_pitch), C.size_t(host_slice_pitch),
+		ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
+}
+
+// Enqueues a command to copy from one buffer object to another.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyBuffer.html
 func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Mem, src_offset, dst_offset, cb Size,
 	wait_list []Event, event *Event) error {
 
@@ -83,6 +138,24 @@ func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Mem, s
 		C.size_t(dst_offset), C.size_t(cb), num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
+// Enqueues a command to copy a rectangular region from the buffer object to
+// another buffer object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyBufferRect.html
+func EnqueueCopyBufferRect(command_queue CommandQueue, src_buffer, dst_buffer Mem, src_origin, dst_origin,
+	region [3]Size, src_row_pitch, src_slice_pitch, dst_row_pitch, dst_slice_pitch Size, wait_list []Event,
+	event *Event) error {
+
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueCopyBufferRect(command_queue, src_buffer, dst_buffer, (*C.size_t)(&src_origin[0]),
+		(*C.size_t)(&dst_origin[0]), (*C.size_t)(&region[0]), C.size_t(src_row_pitch), C.size_t(src_slice_pitch),
+		C.size_t(dst_row_pitch), C.size_t(dst_slice_pitch), num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
+}
+
+// Enqueues a command to map a region of the buffer object given by buffer into
+// the host address space and returns a pointer to this mapped region.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMapBuffer.html
 func EnqueueMapBuffer(command_queue CommandQueue, buffer Mem, blocking_map Bool, map_flags MapFlags, offset, cb Size,
 	wait_list []Event, event *Event) (unsafe.Pointer, error) {
 
@@ -95,6 +168,8 @@ func EnqueueMapBuffer(command_queue CommandQueue, buffer Mem, blocking_map Bool,
 	return mapped, toError(err)
 }
 
+// Enqueues a command to unmap a previously mapped region of a memory object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueUnmapMemObject.html
 func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr unsafe.Pointer, wait_list []Event,
 	event *Event) error {
 
