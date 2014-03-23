@@ -3,6 +3,7 @@ package clw11
 /*
 #cgo LDFLAGS: -lOpenCL
 
+#define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include "CL/opencl.h"
 */
 import "C"
