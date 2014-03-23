@@ -7,6 +7,13 @@ package clw11
 #else
 #include "CL/opencl.h"
 #endif
+
+extern void bufferCallback(cl_mem memobj, void *user_data);
+
+void callBufferCallback(cl_mem memobj, void *user_data)
+{
+	bufferCallback(memobj, user_data);
+}
 */
 import "C"
 import (
@@ -178,4 +185,22 @@ func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr un
 
 	return toError(C.clEnqueueUnmapMemObject(command_queue, memobj, mapped_ptr, num_events_in_wait_list,
 		event_wait_list, (*C.cl_event)(event)))
+}
+
+// Registers a user callback function that will be called when the memory object
+// is deleted and its resources freed.
+func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
+
+	key := bufferCallbacks.add(callback, user_data)
+
+	err := toError(C.clSetMemObjectDestructorCallback(C.cl_mem(memobj), (*[0]byte)(C.callBufferCallback),
+		unsafe.Pointer(key)))
+
+	if err != nil {
+		// If the C side setting of the callback failed GetCallback will remove
+		// the callback from the map.
+		bufferCallbacks.get(key)
+	}
+
+	return err
 }
