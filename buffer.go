@@ -200,6 +200,9 @@ func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr un
 		event_wait_list, (*C.cl_event)(event)))
 }
 
+// Registers a user callback function that will be called when the memory object
+// is deleted and its resources freed.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetMemObjectDestructorCallback.html
 func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
 
 	key := bufferCallbacks.add(callback, user_data)
@@ -216,6 +219,9 @@ func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, use
 	return err
 }
 
+// Used to get information that is common to all memory objects (buffer and
+// image objects).
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetMemObjectInfo.html
 func GetMemObjectInfo(memobj Mem, param_name MemInfo, param_value_size Size, param_value unsafe.Pointer,
 	param_value_size_return *Size) error {
 
