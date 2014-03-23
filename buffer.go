@@ -23,6 +23,7 @@ import (
 type (
 	Mem              C.cl_mem
 	MemFlags         C.cl_mem_flags
+	MemInfo          C.cl_mem_info
 	MapFlags         C.cl_map_flags
 	BufferRegion     C.cl_buffer_region
 	BufferCreateType C.cl_buffer_create_type
@@ -46,6 +47,18 @@ const (
 
 const (
 	BufferCreateTypeRegion BufferCreateType = C.CL_BUFFER_CREATE_TYPE_REGION
+)
+
+const (
+	MemType                MemInfo = C.CL_MEM_TYPE
+	MemFlagsInfo           MemInfo = C.CL_MEM_FLAGS // Appended "Info" due to conflict with type.
+	MemSize                MemInfo = C.CL_MEM_SIZE
+	MemHostPtr             MemInfo = C.CL_MEM_HOST_PTR
+	MemMapCount            MemInfo = C.CL_MEM_MAP_COUNT
+	MemReferenceCount      MemInfo = C.CL_MEM_REFERENCE_COUNT
+	MemContext             MemInfo = C.CL_MEM_CONTEXT
+	MemAssociatedMemobject MemInfo = C.CL_MEM_ASSOCIATED_MEMOBJECT
+	MemOffset              MemInfo = C.CL_MEM_OFFSET
 )
 
 // Creates a buffer object.
@@ -187,8 +200,6 @@ func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr un
 		event_wait_list, (*C.cl_event)(event)))
 }
 
-// Registers a user callback function that will be called when the memory object
-// is deleted and its resources freed.
 func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
 
 	key := bufferCallbacks.add(callback, user_data)
@@ -203,4 +214,11 @@ func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, use
 	}
 
 	return err
+}
+
+func GetMemObjectInfo(memobj Mem, param_name MemInfo, param_value_size Size, param_value unsafe.Pointer,
+	param_value_size_return *Size) error {
+
+	return toError(C.clGetMemObjectInfo(memobj, C.cl_mem_info(param_name), C.size_t(param_value_size), param_value,
+		(*C.size_t)(param_value_size_return)))
 }
