@@ -74,8 +74,8 @@ func CreateBuffer(context Context, flags MemFlags, size Size, host_ptr unsafe.Po
 // Creates a buffer object (referred to as a sub-buffer object) from an existing
 // buffer object.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateSubBuffer.html
-func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create_type BufferCreateType, buffer_create_info unsafe.Pointer,
-	errcode_ret *Int) (Mem, error) {
+func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create_type BufferCreateType,
+	buffer_create_info unsafe.Pointer) (Mem, error) {
 
 	var err C.cl_int
 	memory := C.clCreateSubBuffer(buffer, C.cl_mem_flags(flags), C.cl_buffer_create_type(buffer_create_type),
