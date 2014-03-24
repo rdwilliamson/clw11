@@ -21,11 +21,10 @@ import (
 )
 
 type (
-	Mem              C.cl_mem
-	MemFlags         C.cl_mem_flags
-	MemInfo          C.cl_mem_info
-	MapFlags         C.cl_map_flags
-	BufferCreateType C.cl_buffer_create_type
+	Mem      C.cl_mem
+	MemFlags C.cl_mem_flags
+	MemInfo  C.cl_mem_info
+	MapFlags C.cl_map_flags
 )
 
 type BufferRegion struct {
@@ -47,10 +46,6 @@ const (
 const (
 	MapRead  MapFlags = C.CL_MAP_READ
 	MapWrite MapFlags = C.CL_MAP_WRITE
-)
-
-const (
-	BufferCreateTypeRegion BufferCreateType = C.CL_BUFFER_CREATE_TYPE_REGION
 )
 
 const (
@@ -78,24 +73,23 @@ func CreateBuffer(context Context, flags MemFlags, size Size, host_ptr unsafe.Po
 // Creates a buffer object (referred to as a sub-buffer object) from an existing
 // buffer object.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateSubBuffer.html
-func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create_type BufferCreateType,
-	buffer_create_info unsafe.Pointer) (Mem, error) {
+func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create interface{}) (Mem, error) {
 
-	var bufferCreateInfo unsafe.Pointer
-	switch buffer_create_type {
+	var buffer_create_info unsafe.Pointer
+	var buffer_create_type C.cl_buffer_create_type
 
-	case BufferCreateTypeRegion:
+	switch v := buffer_create.(type) {
 
-		br := (*BufferRegion)(buffer_create_info)
+	case BufferRegion:
 		var region C.cl_buffer_region
-		region.origin = C.size_t(br.Origin)
-		region.size = C.size_t(br.Size)
-		bufferCreateInfo = unsafe.Pointer(&region)
+		region.origin = C.size_t(v.Origin)
+		region.size = C.size_t(v.Size)
+		buffer_create_type = C.CL_BUFFER_CREATE_TYPE_REGION
+		buffer_create_info = unsafe.Pointer(&region)
 	}
 
 	var err C.cl_int
-	memory := C.clCreateSubBuffer(buffer, C.cl_mem_flags(flags), C.cl_buffer_create_type(buffer_create_type),
-		bufferCreateInfo, &err)
+	memory := C.clCreateSubBuffer(buffer, C.cl_mem_flags(flags), buffer_create_type, buffer_create_info, &err)
 
 	return Mem(memory), toError(err)
 }
