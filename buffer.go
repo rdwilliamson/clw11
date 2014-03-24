@@ -25,9 +25,13 @@ type (
 	MemFlags         C.cl_mem_flags
 	MemInfo          C.cl_mem_info
 	MapFlags         C.cl_map_flags
-	BufferRegion     C.cl_buffer_region
 	BufferCreateType C.cl_buffer_create_type
 )
+
+type BufferRegion struct {
+	Origin Size
+	Size   Size
+}
 
 // Bitfield.
 const (
@@ -77,9 +81,21 @@ func CreateBuffer(context Context, flags MemFlags, size Size, host_ptr unsafe.Po
 func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create_type BufferCreateType,
 	buffer_create_info unsafe.Pointer) (Mem, error) {
 
+	var bufferCreateInfo unsafe.Pointer
+	switch buffer_create_type {
+
+	case BufferCreateTypeRegion:
+
+		br := (*BufferRegion)(buffer_create_info)
+		var region C.cl_buffer_region
+		region.origin = C.size_t(br.Origin)
+		region.size = C.size_t(br.Size)
+		bufferCreateInfo = unsafe.Pointer(&region)
+	}
+
 	var err C.cl_int
 	memory := C.clCreateSubBuffer(buffer, C.cl_mem_flags(flags), C.cl_buffer_create_type(buffer_create_type),
-		buffer_create_info, &err)
+		bufferCreateInfo, &err)
 
 	return Mem(memory), toError(err)
 }
