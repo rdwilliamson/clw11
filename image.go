@@ -9,8 +9,10 @@ package clw11
 #endif
 */
 import "C"
+import "unsafe"
 
 type (
+	ImageFormat  C.cl_image_format
 	ChannelOrder C.cl_channel_order
 	ChannelType  C.cl_channel_type
 )
@@ -48,3 +50,14 @@ const (
 	HalfFloat      ChannelType = C.CL_HALF_FLOAT
 	Float          ChannelType = C.CL_FLOAT
 )
+
+func CreateImage2D(context Context, flags MemFlags, image_format *ImageFormat, image_width, image_height,
+	image_row_pitch Size, host_ptr unsafe.Pointer) (Mem, error) {
+
+	var err C.cl_int
+
+	mem := C.clCreateImage2D(context, C.cl_mem_flags(flags), (*C.cl_image_format)(image_format), C.size_t(image_width),
+		C.size_t(image_height), C.size_t(image_row_pitch), host_ptr, &err)
+
+	return Mem(mem), toError(err)
+}
