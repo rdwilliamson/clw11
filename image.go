@@ -12,10 +12,14 @@ import "C"
 import "unsafe"
 
 type (
-	ImageFormat  C.cl_image_format
 	ChannelOrder C.cl_channel_order
 	ChannelType  C.cl_channel_type
 )
+
+type ImageFormat struct {
+	ImageChannelOrder ChannelOrder
+	ImageChannelType  ChannelType
+}
 
 const (
 	R         ChannelOrder = C.CL_R
@@ -51,13 +55,16 @@ const (
 	Float          ChannelType = C.CL_FLOAT
 )
 
-func CreateImage2D(context Context, flags MemFlags, image_format *ImageFormat, image_width, image_height,
+func CreateImage2D(context Context, flags MemFlags, image_format ImageFormat, image_width, image_height,
 	image_row_pitch Size, host_ptr unsafe.Pointer) (Mem, error) {
 
-	var err C.cl_int
+	var im C.cl_image_format
+	im.image_channel_order = C.cl_channel_order(image_format.ImageChannelOrder)
+	im.image_channel_data_type = C.cl_channel_type(image_format.ImageChannelType)
 
-	mem := C.clCreateImage2D(context, C.cl_mem_flags(flags), (*C.cl_image_format)(image_format), C.size_t(image_width),
-		C.size_t(image_height), C.size_t(image_row_pitch), host_ptr, &err)
+	var err C.cl_int
+	mem := C.clCreateImage2D(context, C.cl_mem_flags(flags), &im, C.size_t(image_width), C.size_t(image_height),
+		C.size_t(image_row_pitch), host_ptr, &err)
 
 	return Mem(mem), toError(err)
 }
