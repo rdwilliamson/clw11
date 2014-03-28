@@ -12,8 +12,9 @@ import "C"
 import "unsafe"
 
 type (
-	ChannelOrder C.cl_channel_order
-	ChannelType  C.cl_channel_type
+	MemObjectType C.cl_mem_object_type
+	ChannelOrder  C.cl_channel_order
+	ChannelType   C.cl_channel_type
 )
 
 type ImageFormat struct {
@@ -54,6 +55,17 @@ const (
 	HalfFloat      ChannelType = C.CL_HALF_FLOAT
 	Float          ChannelType = C.CL_FLOAT
 )
+
+func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
+	image_formats *ImageFormat, num_image_formats *Uint) error {
+
+	var fmt C.cl_image_format
+	fmt.image_channel_order = C.cl_channel_order(image_formats.ImageChannelOrder)
+	fmt.image_channel_data_type = C.cl_channel_type(image_formats.ImageChannelType)
+
+	return toError(C.clGetSupportedImageFormats(context, C.cl_mem_flags(flags), C.cl_mem_object_type(image_type),
+		C.cl_uint(num_entries), &fmt, (*C.cl_uint)(num_image_formats)))
+}
 
 func CreateImage2D(context Context, flags MemFlags, image_format ImageFormat, image_width, image_height,
 	image_row_pitch Size, host_ptr unsafe.Pointer) (Mem, error) {
