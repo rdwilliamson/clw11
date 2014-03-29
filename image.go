@@ -56,6 +56,14 @@ func CreateImageFormat(co ChannelOrder, ct ChannelType) ImageFormat {
 	return ImageFormat{C.cl_channel_order(co), C.cl_channel_type(ct)}
 }
 
+func (f *ImageFormat) Order() ChannelOrder {
+	return ChannelOrder(f.image_channel_order)
+}
+
+func (f *ImageFormat) Type() ChannelType {
+	return ChannelType(f.image_channel_data_type)
+}
+
 func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
 	image_formats *ImageFormat, num_image_formats *Uint) error {
 
