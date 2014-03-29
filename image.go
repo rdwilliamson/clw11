@@ -13,14 +13,10 @@ import "unsafe"
 
 type (
 	MemObjectType C.cl_mem_object_type
+	ImageFormat   C.cl_image_format
 	ChannelOrder  C.cl_channel_order
 	ChannelType   C.cl_channel_type
 )
-
-type ImageFormat struct {
-	ImageChannelOrder ChannelOrder
-	ImageChannelType  ChannelType
-}
 
 const (
 	R         ChannelOrder = C.CL_R
@@ -59,24 +55,16 @@ const (
 func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
 	image_formats *ImageFormat, num_image_formats *Uint) error {
 
-	var fmt C.cl_image_format
-	fmt.image_channel_order = C.cl_channel_order(image_formats.ImageChannelOrder)
-	fmt.image_channel_data_type = C.cl_channel_type(image_formats.ImageChannelType)
-
 	return toError(C.clGetSupportedImageFormats(context, C.cl_mem_flags(flags), C.cl_mem_object_type(image_type),
-		C.cl_uint(num_entries), &fmt, (*C.cl_uint)(num_image_formats)))
+		C.cl_uint(num_entries), (*C.cl_image_format)(image_formats), (*C.cl_uint)(num_image_formats)))
 }
 
 func CreateImage2D(context Context, flags MemFlags, image_format ImageFormat, image_width, image_height,
 	image_row_pitch Size, host_ptr unsafe.Pointer) (Mem, error) {
 
-	var im C.cl_image_format
-	im.image_channel_order = C.cl_channel_order(image_format.ImageChannelOrder)
-	im.image_channel_data_type = C.cl_channel_type(image_format.ImageChannelType)
-
 	var err C.cl_int
-	mem := C.clCreateImage2D(context, C.cl_mem_flags(flags), &im, C.size_t(image_width), C.size_t(image_height),
-		C.size_t(image_row_pitch), host_ptr, &err)
+	mem := C.clCreateImage2D(context, C.cl_mem_flags(flags), (*C.cl_image_format)(&image_format), C.size_t(image_width),
+		C.size_t(image_height), C.size_t(image_row_pitch), host_ptr, &err)
 
 	return Mem(mem), toError(err)
 }
