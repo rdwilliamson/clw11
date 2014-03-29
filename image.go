@@ -62,11 +62,11 @@ func CreateImageFormat(co ChannelOrder, ct ChannelType) ImageFormat {
 	return ImageFormat{C.cl_channel_order(co), C.cl_channel_type(ct)}
 }
 
-func (f *ImageFormat) Order() ChannelOrder {
+func (f *ImageFormat) ChannelOrder() ChannelOrder {
 	return ChannelOrder(f.image_channel_order)
 }
 
-func (f *ImageFormat) Type() ChannelType {
+func (f *ImageFormat) ChannelType() ChannelType {
 	return ChannelType(f.image_channel_data_type)
 }
 
