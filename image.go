@@ -52,6 +52,10 @@ const (
 	Float          ChannelType = C.CL_FLOAT
 )
 
+func CreateImageFormat(co ChannelOrder, ct ChannelType) ImageFormat {
+	return ImageFormat{C.cl_channel_order(co), C.cl_channel_type(ct)}
+}
+
 func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
 	image_formats *ImageFormat, num_image_formats *Uint) error {
 
