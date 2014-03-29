@@ -19,6 +19,12 @@ type (
 )
 
 const (
+	MemObjectBuffer  MemObjectType = C.CL_MEM_OBJECT_BUFFER
+	MemObjectImage2D MemObjectType = C.CL_MEM_OBJECT_IMAGE2D
+	MemObjectImage3D MemObjectType = C.CL_MEM_OBJECT_IMAGE3D
+)
+
+const (
 	R         ChannelOrder = C.CL_R
 	A         ChannelOrder = C.CL_A
 	RG        ChannelOrder = C.CL_RG
