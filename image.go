@@ -69,14 +69,17 @@ const (
 	ImageDepth       ImageInfo = C.CL_IMAGE_DEPTH
 )
 
+// Create an image format descriptor.
 func CreateImageFormat(co ChannelOrder, ct ChannelType) ImageFormat {
 	return ImageFormat{C.cl_channel_order(co), C.cl_channel_type(ct)}
 }
 
+// Retruns the number of channels and the channel layout.
 func (f *ImageFormat) ChannelOrder() ChannelOrder {
 	return ChannelOrder(f.image_channel_order)
 }
 
+// Returns the size of the channel data type.
 func (f *ImageFormat) ChannelType() ChannelType {
 	return ChannelType(f.image_channel_data_type)
 }
