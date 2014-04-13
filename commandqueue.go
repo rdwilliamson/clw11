@@ -41,14 +41,6 @@ func ReleaseCommandQueue(command_queue CommandQueue) error {
 	return toError(C.clReleaseCommandQueue(command_queue))
 }
 
-// // Enable or disable the properties of a command-queue.
-// // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetCommandQueueProperty.html
-// func SetCommandQueueProperty(command_queue CommandQueue, properties CommandQueueProperties, enable Bool,
-// 	old_properties *CommandQueueProperties) error {
-// 	return toError(C.clSetCommandQueueProperty(command_queue, properties, C.cl_bool(enable),
-// 		(*C.cl_command_queue_properties)(old_properties)))
-// }
-
 // Enqueues a marker command.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMarker.html
 func EnqueueMarker(command_queue CommandQueue, event *Event) error {

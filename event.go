@@ -94,8 +94,16 @@ func CreateUserEvent(context Context) (Event, error) {
 // Sets the execution status of a user event object.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
 func SetUserEventStatus(event Event, execution_status Int) error {
-
 	return toError(C.clSetUserEventStatus(event, C.cl_int(execution_status)))
+}
+
+// Waits on the host thread for commands identified by event objects to
+// complete.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clWaitForEvents.html
+func WaitForEvents(wait_list []Event) error {
+
+	event_list, num_events := toEventList(wait_list)
+	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
 }
 
 // Returns information about the event object.
@@ -105,16 +113,6 @@ func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramVa
 
 	return toError(C.clGetEventInfo(event, C.cl_event_info(paramName), C.size_t(paramValueSize), paramValue,
 		(*C.size_t)(paramValueSizeRet)))
-}
-
-// Returns profiling information for the command associated with event if
-// profiling is enabled.
-// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetEventProfilingInfo.html
-func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize Size, paramValue unsafe.Pointer,
-	paramValueSizeRet *Size) error {
-
-	return toError(C.clGetEventProfilingInfo(event, C.cl_profiling_info(paramName), C.size_t(paramValueSize),
-		paramValue, (*C.size_t)(paramValueSizeRet)))
 }
 
 // Registers a user callback function for a specific command execution status.
@@ -136,25 +134,24 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 	return err
 }
 
-// Waits on the host thread for commands identified by event objects to
-// complete.
-// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clWaitForEvents.html
-func WaitForEvents(wait_list []Event) error {
-
-	event_list, num_events := toEventList(wait_list)
-	return toError(C.clWaitForEvents(C.cl_uint(num_events), (*C.cl_event)(event_list)))
-}
-
 // Increments the event reference count.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainEvent.html
 func RetainEvent(event Event) error {
-
 	return toError(C.clRetainEvent(event))
 }
 
 // Decrements the event reference count.
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseEvent.html
 func ReleaseEvent(event Event) error {
-
 	return toError(C.clReleaseEvent(event))
+}
+
+// Returns profiling information for the command associated with event if
+// profiling is enabled.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetEventProfilingInfo.html
+func GetEventProfilingInfo(event Event, paramName ProfilingInfo, paramValueSize Size, paramValue unsafe.Pointer,
+	paramValueSizeRet *Size) error {
+
+	return toError(C.clGetEventProfilingInfo(event, C.cl_profiling_info(paramName), C.size_t(paramValueSize),
+		paramValue, (*C.size_t)(paramValueSizeRet)))
 }
