@@ -128,8 +128,8 @@ func SetEventCallback(event Event, command_exec_callback_type CommandExecutionSt
 		unsafe.Pointer(key)))
 
 	if err != nil {
-		// If the C side setting of the callback failed GetCallback will remove
-		// the callback from the map.
+		// If the C side setting of the callback failed the get callback will
+		// remove the callback from the map.
 		eventCallbacks.get(key)
 	}
 

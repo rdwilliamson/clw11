@@ -7,6 +7,13 @@ package clw11
 #else
 #include "CL/opencl.h"
 #endif
+
+extern void programCallback(cl_program program, void *user_data);
+
+void callProgramCallback(cl_program program, void *user_data)
+{
+	programCallback(program, user_data);
+}
 */
 import "C"
 import "unsafe"
@@ -50,14 +57,22 @@ func CreateProgramWithSource(context Context, sources [][]byte) (Program, error)
 	return Program(program), toError(err)
 }
 
-func BuildProgram(program Program, devices []DeviceID, options string, callback func()) error {
-	// TODO handle callbacks
+func BuildProgram(program Program, devices []DeviceID, options string, callback ProgramCallbackFunc,
+	userData interface{}) error {
 
 	cOptions := C.CString(options)
 	defer C.free(unsafe.Pointer(cOptions))
 
+	key := programCallbacks.add(callback, userData)
+
 	err := toError(C.clBuildProgram(program, C.cl_uint(len(devices)), (*C.cl_device_id)(&devices[0]), cOptions,
-		nil, nil))
+		(*[0]byte)(C.callProgramCallback), unsafe.Pointer(key)))
+
+	if err != nil {
+		// If the C side setting of the callback failed the get callback will
+		// remove the callback from the map.
+		programCallbacks.get(key)
+	}
 
 	return err
 }

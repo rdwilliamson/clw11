@@ -52,8 +52,8 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS {
-		// If the C side setting of the callback failed GetCallback will remove
-		// the callback from the map.
+		// If the C side setting of the callback failed the get callback will
+		// remove the callback from the map.
 		contextCallbacks.get(key)
 	}
 
