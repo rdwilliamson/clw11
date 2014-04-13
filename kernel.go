@@ -33,6 +33,8 @@ const (
 	KernelPrivateMemSize                 = KernelWorkGroupInfo(C.CL_KERNEL_PRIVATE_MEM_SIZE)
 )
 
+// Creates a kernal object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateKernel.html
 func CreateKernel(program Program, kernel_name string) (Kernel, error) {
 
 	name := C.CString(kernel_name)
@@ -44,6 +46,40 @@ func CreateKernel(program Program, kernel_name string) (Kernel, error) {
 	return Kernel(kernel), toError(err)
 }
 
+// Creates kernel objects for all kernel functions in a program object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateKernelsInProgram.html
+func CreateKernelsInProgram(program Program, kernels []Kernel, num_kernels_ret *Uint) error {
+
+	var num_kernels C.cl_uint
+	var cKernels *C.cl_kernel
+	if kernels != nil {
+		num_kernels = C.cl_uint(len(kernels))
+		cKernels = (*C.cl_kernel)(&kernels[0])
+	}
+
+	return toError(C.clCreateKernelsInProgram(program, num_kernels, cKernels, (*C.cl_uint)(num_kernels_ret)))
+}
+
+// Increments the kernel object reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainKernel.html
+func RetainKernel(kernel Kernel) error {
+	return toError(C.clRetainKernel(kernel))
+}
+
+// Decrements the kernel reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseKernel.html
+func ReleaseKernel(kernel Kernel) error {
+	return toError(C.clReleaseKernel(kernel))
+}
+
+// Used to set the argument value for a specific argument of a kernel.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetKernelArg.html
+func SetKernelArg(kernel Kernel, arg_index Uint, arg_size Size, arg_value unsafe.Pointer) error {
+	return toError(C.clSetKernelArg(kernel, C.cl_uint(arg_index), C.size_t(arg_size), arg_value))
+}
+
+// Returns information about the kernel object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetKernelInfo.html
 func GetKernelInfo(kernel Kernel, param_name KernelInfo, param_value_size Size, param_value unsafe.Pointer,
 	param_value_size_ret *Size) error {
 
@@ -51,6 +87,8 @@ func GetKernelInfo(kernel Kernel, param_name KernelInfo, param_value_size Size, 
 		param_value, (*C.size_t)(param_value_size_ret)))
 }
 
+// Returns information about the kernel object that may be specific to a device.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetKernelWorkGroupInfo.html
 func GetKernelWorkGroupInfo(kernel Kernel, device DeviceID, param_name KernelWorkGroupInfo, param_value_size Size,
 	param_value unsafe.Pointer, param_value_size_ret *Size) error {
 
@@ -58,10 +96,8 @@ func GetKernelWorkGroupInfo(kernel Kernel, device DeviceID, param_name KernelWor
 		C.size_t(param_value_size), param_value, (*C.size_t)(param_value_size_ret)))
 }
 
-func SetKernelArg(kernel Kernel, arg_index Uint, arg_size Size, arg_value unsafe.Pointer) error {
-	return toError(C.clSetKernelArg(kernel, C.cl_uint(arg_index), C.size_t(arg_size), arg_value))
-}
-
+// Enqueues a command to execute a kernel on a device.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueNDRangeKernel.html
 func EnqueueNDRangeKernel(command_queue CommandQueue, kernel Kernel, global_work_offset, global_work_size,
 	local_work_size []Size, wait_list []Event, event *Event) error {
 
@@ -71,6 +107,8 @@ func EnqueueNDRangeKernel(command_queue CommandQueue, kernel Kernel, global_work
 		num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
+// Enqueues a command to execute a kernel on a device.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueTask.html
 func EnqueueTask(command_queue CommandQueue, kernel Kernel, wait_list []Event, event *Event) error {
 
 	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
@@ -78,6 +116,9 @@ func EnqueueTask(command_queue CommandQueue, kernel Kernel, wait_list []Event, e
 		(*C.cl_event)(event)))
 }
 
+// Enqueues a command to execute a native C/C++ function not compiled using the
+// OpenCL compiler.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueNativeKernel.html
 func EnqueueNativeKernel(command_queue CommandQueue, user_func unsafe.Pointer, args unsafe.Pointer, cb_args Size,
 	mem_object_list []Mem, args_mem_loc *unsafe.Pointer, wait_list []Event, event *Event) error {
 
