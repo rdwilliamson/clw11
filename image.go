@@ -109,15 +109,6 @@ func CreateImage3D(context Context, flags MemFlags, image_format ImageFormat, im
 	return Mem(mem), toError(err)
 }
 
-// Get information specific to an image object.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetImageInfo.html
-func GetImageInfo(image Mem, param_name ImageInfo, param_value_size Size, param_value unsafe.Pointer,
-	param_value_size_ret *Size) error {
-
-	return toError(C.clGetImageInfo(image, C.cl_image_info(param_name), C.size_t(param_value_size), param_value,
-		(*C.size_t)(param_value_size_ret)))
-}
-
 // Get the list of image formats supported by an OpenCL implementation.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetSupportedImageFormats.html
 func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
@@ -125,4 +116,37 @@ func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObj
 
 	return toError(C.clGetSupportedImageFormats(context, C.cl_mem_flags(flags), C.cl_mem_object_type(image_type),
 		C.cl_uint(num_entries), (*C.cl_image_format)(image_formats), (*C.cl_uint)(num_image_formats)))
+}
+
+func EnqueueReadImage() {
+
+}
+
+func EnqueueWriteImage() {
+
+}
+
+func EnqueueCopyImage() {
+
+}
+
+func EnqueueCopyImageToBuffer() {
+
+}
+
+func EnqueueCopyBufferToImage() {
+
+}
+
+func EnqueueMapImage() {
+
+}
+
+// Get information specific to an image object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetImageInfo.html
+func GetImageInfo(image Mem, param_name ImageInfo, param_value_size Size, param_value unsafe.Pointer,
+	param_value_size_ret *Size) error {
+
+	return toError(C.clGetImageInfo(image, C.cl_image_info(param_name), C.size_t(param_value_size), param_value,
+		(*C.size_t)(param_value_size_ret)))
 }
