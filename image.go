@@ -118,28 +118,80 @@ func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObj
 		C.cl_uint(num_entries), (*C.cl_image_format)(image_formats), (*C.cl_uint)(num_image_formats)))
 }
 
-func EnqueueReadImage() {
+// Enqueues a command to read from a 2D or 3D image object to host memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMapImage.html
+func EnqueueReadImage(command_queue CommandQueue, image Mem, blocking_read Bool, origin, region [3]Size, row_pitch,
+	slice_pitch Size, ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueReadImage(command_queue, image, C.cl_bool(blocking_read), (*C.size_t)(&origin[0]),
+		(*C.size_t)(&region[0]), C.size_t(row_pitch), C.size_t(slice_pitch), ptr, num_events_in_wait_list,
+		event_wait_list, (*C.cl_event)(event)))
 }
 
-func EnqueueWriteImage() {
+// Enqueues a command to write to a 2D or 3D image object from host memory.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMapImage.html
+func EnqueueWriteImage(command_queue CommandQueue, image Mem, blocking_read Bool, origin, region [3]Size, row_pitch,
+	slice_pitch Size, ptr unsafe.Pointer, wait_list []Event, event *Event) error {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueWriteImage(command_queue, image, C.cl_bool(blocking_read), (*C.size_t)(&origin[0]),
+		(*C.size_t)(&region[0]), C.size_t(row_pitch), C.size_t(slice_pitch), ptr, num_events_in_wait_list,
+		event_wait_list, (*C.cl_event)(event)))
 }
 
-func EnqueueCopyImage() {
+// Enqueues a command to copy image objects.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyImage.html
+func EnqueueCopyImage(command_queue CommandQueue, src_image, dst_image Mem, src_origin, dst_origin, region [3]Size,
+	wait_list []Event, event *Event) error {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueCopyImage(command_queue, src_image, dst_image, (*C.size_t)(&src_origin[0]),
+		(*C.size_t)(&dst_origin[0]), (*C.size_t)(&region[0]), num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
 }
 
-func EnqueueCopyImageToBuffer() {
+// Enqueues a command to copy an image object to a buffer object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyImageToBuffer.html
+func EnqueueCopyImageToBuffer(command_queue CommandQueue, src_image, dst_buffer Mem, src_origin, region [3]Size,
+	dst_offset Size, wait_list []Event, event *Event) error {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueCopyImageToBuffer(command_queue, src_image, dst_buffer, (*C.size_t)(&src_origin[0]),
+		(*C.size_t)(&region[0]), C.size_t(dst_offset), num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
 }
 
-func EnqueueCopyBufferToImage() {
+// Enqueues a command to copy a buffer object to an image object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyBufferToImage.html
+func EnqueueCopyBufferToImage(command_queue CommandQueue, src_buffer, dst_image Mem, src_offset Size, dst_origin,
+	region [3]Size, wait_list []Event, event *Event) error {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	return toError(C.clEnqueueCopyBufferToImage(command_queue, src_buffer, dst_image, C.size_t(src_offset),
+		(*C.size_t)(&dst_origin[0]), (*C.size_t)(&region[0]), num_events_in_wait_list, event_wait_list,
+		(*C.cl_event)(event)))
 }
 
-func EnqueueMapImage() {
+// Enqueues a command to map a region of an image object into the host address
+// space and returns a pointer to this mapped region.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMapImage.html
+func EnqueueMapImage(command_queue CommandQueue, image Mem, blocking_map Bool, map_flags MapFlags, origin,
+	region [3]Size, image_row_pitch, image_slice_pitch *Size, wait_list []Event, event *Event) (unsafe.Pointer, error) {
 
+	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+
+	var err C.cl_int
+	mapped := C.clEnqueueMapImage(command_queue, image, C.cl_bool(blocking_map), C.cl_map_flags(map_flags),
+		(*C.size_t)(&origin[0]), (*C.size_t)(&region[0]), (*C.size_t)(image_row_pitch), (*C.size_t)(image_slice_pitch),
+		num_events_in_wait_list, event_wait_list, (*C.cl_event)(event), &err)
+
+	return mapped, toError(err)
 }
 
 // Get information specific to an image object.
