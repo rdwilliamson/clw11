@@ -29,20 +29,6 @@ func CreateCommandQueue(context Context, device DeviceID, properties CommandQueu
 	return CommandQueue(result), toError(err)
 }
 
-// Issues all previously queued OpenCL commands in a command-queue to the device
-// associated with the command-queue.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clFlush.html
-func Flush(cq CommandQueue) error {
-	return toError(C.clFlush(cq))
-}
-
-// Blocks until all previously queued OpenCL commands in a command-queue are
-// issued to the associated device and have completed.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clFinish.html
-func Finish(cq CommandQueue) error {
-	return toError(C.clFinish(cq))
-}
-
 // Increments the command_queue reference count.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainCommandQueue.html
 func RetainCommandQueue(command_queue CommandQueue) error {
@@ -54,6 +40,14 @@ func RetainCommandQueue(command_queue CommandQueue) error {
 func ReleaseCommandQueue(command_queue CommandQueue) error {
 	return toError(C.clReleaseCommandQueue(command_queue))
 }
+
+// // Enable or disable the properties of a command-queue.
+// // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetCommandQueueProperty.html
+// func SetCommandQueueProperty(command_queue CommandQueue, properties CommandQueueProperties, enable Bool,
+// 	old_properties *CommandQueueProperties) error {
+// 	return toError(C.clSetCommandQueueProperty(command_queue, properties, C.cl_bool(enable),
+// 		(*C.cl_command_queue_properties)(old_properties)))
+// }
 
 // Enqueues a marker command.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueMarker.html
@@ -73,4 +67,18 @@ func EnqueueWaitForEvents(command_queue CommandQueue, wait_list []Event) error {
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueBarrier.html
 func EnqueueBarrier(command_queue CommandQueue) error {
 	return toError(C.clEnqueueBarrier(command_queue))
+}
+
+// Issues all previously queued OpenCL commands in a command-queue to the device
+// associated with the command-queue.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clFlush.html
+func Flush(cq CommandQueue) error {
+	return toError(C.clFlush(cq))
+}
+
+// Blocks until all previously queued OpenCL commands in a command-queue are
+// issued to the associated device and have completed.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clFinish.html
+func Finish(cq CommandQueue) error {
+	return toError(C.clFinish(cq))
 }
