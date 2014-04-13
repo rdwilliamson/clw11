@@ -40,6 +40,9 @@ const (
 	ProgramBuildLog     = ProgramBuildInfo(C.CL_PROGRAM_BUILD_LOG)
 )
 
+// Creates a program object for a context, and loads the source code specified
+// by the text strings in the strings array into the program object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateProgramWithSource.html
 func CreateProgramWithSource(context Context, sources [][]byte) (Program, error) {
 
 	count := len(sources)
@@ -57,6 +60,54 @@ func CreateProgramWithSource(context Context, sources [][]byte) (Program, error)
 	return Program(program), toError(err)
 }
 
+// Creates a program object for a context, and loads the binary bits specified
+// by binary into the program object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateProgramWithBinary.html
+func CreateProgramWithBinary(context Context, devices []DeviceID, binaries [][]byte,
+	binary_status []error) (Program, error) {
+
+	num_devices := len(devices)
+	lengths := make([]C.size_t, num_devices)
+	cBinaries := make([]*C.uchar, num_devices)
+	errors := make([]C.cl_int, num_devices)
+	for i := range devices {
+		lengths[i] = C.size_t(len(binaries[i]))
+		cBinaries[i] = (*C.uchar)(&binaries[i][0])
+	}
+
+	var err C.cl_int
+	program := C.clCreateProgramWithBinary(context, C.cl_uint(num_devices), (*C.cl_device_id)(&devices[0]),
+		(*C.size_t)(&lengths[0]), (**C.uchar)(&cBinaries[0]), (*C.cl_int)(&errors[0]), &err)
+
+	for i := range binary_status {
+		binary_status[i] = toError(errors[i])
+	}
+
+	return Program(program), toError(err)
+}
+
+// Increments the program reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainProgram.html
+func RetainProgram(program Program) error {
+	return toError(C.clRetainProgram(program))
+}
+
+// Decrements the program reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseProgram.html
+func ReleaseProgram(program Program) error {
+	return toError(C.clReleaseProgram(program))
+}
+
+// Allows the implementation to release the resources allocated by the OpenCL
+// compiler.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clUnloadCompiler.html
+func UnloadCompiler() error {
+	return toError(C.clUnloadCompiler())
+}
+
+// Builds (compiles and links) a program executable from the program source or
+// binary.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clBuildProgram.html
 func BuildProgram(program Program, devices []DeviceID, options string, callback ProgramCallbackFunc,
 	userData interface{}) error {
 
@@ -77,6 +128,8 @@ func BuildProgram(program Program, devices []DeviceID, options string, callback 
 	return err
 }
 
+// Returns information about the program object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetProgramInfo.html
 func GetProgramInfo(program Program, param_name ProgramInfo, param_value_size Size, param_value unsafe.Pointer,
 	param_value_size_ret *Size) error {
 
@@ -84,6 +137,8 @@ func GetProgramInfo(program Program, param_name ProgramInfo, param_value_size Si
 		(*C.size_t)(param_value_size_ret)))
 }
 
+// Returns build information for each device in the program object.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetProgramBuildInfo.html
 func GetProgramBuildInfo(program Program, device DeviceID, param_name ProgramBuildInfo, param_value_size Size,
 	param_value unsafe.Pointer, param_value_size_ret *Size) error {
 
