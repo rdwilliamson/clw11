@@ -94,18 +94,6 @@ func CreateSubBuffer(buffer Mem, flags MemFlags, buffer_create interface{}) (Mem
 	return Mem(memory), toError(err)
 }
 
-// Increments the memory object reference count.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainMemObject.html
-func RetainMemObject(memobj Mem) error {
-	return toError(C.clRetainMemObject(memobj))
-}
-
-// Decrements the memory object reference count.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseMemObject.html
-func ReleaseMemObject(memobj Mem) error {
-	return toError(C.clReleaseMemObject(memobj))
-}
-
 // Enqueue commands to read from a buffer object to host memory.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueReadBuffer.html
 func EnqueueReadBuffer(command_queue CommandQueue, buffer Mem, blocking_read Bool, offset, cb Size,
@@ -158,6 +146,37 @@ func EnqueueWriteBufferRect(command_queue CommandQueue, buffer Mem, blocking_rea
 		ptr, num_events_in_wait_list, event_wait_list, (*C.cl_event)(event)))
 }
 
+// Increments the memory object reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clRetainMemObject.html
+func RetainMemObject(memobj Mem) error {
+	return toError(C.clRetainMemObject(memobj))
+}
+
+// Decrements the memory object reference count.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clReleaseMemObject.html
+func ReleaseMemObject(memobj Mem) error {
+	return toError(C.clReleaseMemObject(memobj))
+}
+
+// Registers a user callback function that will be called when the memory object
+// is deleted and its resources freed.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetMemObjectDestructorCallback.html
+func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
+
+	key := bufferCallbacks.add(callback, user_data)
+
+	err := toError(C.clSetMemObjectDestructorCallback(C.cl_mem(memobj), (*[0]byte)(C.callBufferCallback),
+		unsafe.Pointer(key)))
+
+	if err != nil {
+		// If the C side setting of the callback failed GetCallback will remove
+		// the callback from the map.
+		bufferCallbacks.get(key)
+	}
+
+	return err
+}
+
 // Enqueues a command to copy from one buffer object to another.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueCopyBuffer.html
 func EnqueueCopyBuffer(command_queue CommandQueue, src_buffer, dst_buffer Mem, src_offset, dst_offset, cb Size,
@@ -208,25 +227,6 @@ func EnqueueUnmapMemObject(command_queue CommandQueue, memobj Mem, mapped_ptr un
 
 	return toError(C.clEnqueueUnmapMemObject(command_queue, memobj, mapped_ptr, num_events_in_wait_list,
 		event_wait_list, (*C.cl_event)(event)))
-}
-
-// Registers a user callback function that will be called when the memory object
-// is deleted and its resources freed.
-// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetMemObjectDestructorCallback.html
-func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
-
-	key := bufferCallbacks.add(callback, user_data)
-
-	err := toError(C.clSetMemObjectDestructorCallback(C.cl_mem(memobj), (*[0]byte)(C.callBufferCallback),
-		unsafe.Pointer(key)))
-
-	if err != nil {
-		// If the C side setting of the callback failed GetCallback will remove
-		// the callback from the map.
-		bufferCallbacks.get(key)
-	}
-
-	return err
 }
 
 // Used to get information that is common to all memory objects (buffer and

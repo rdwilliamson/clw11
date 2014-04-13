@@ -81,15 +81,6 @@ func (f *ImageFormat) ChannelType() ChannelType {
 	return ChannelType(f.image_channel_data_type)
 }
 
-// Get the list of image formats supported by an OpenCL implementation.
-// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetSupportedImageFormats.html
-func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
-	image_formats *ImageFormat, num_image_formats *Uint) error {
-
-	return toError(C.clGetSupportedImageFormats(context, C.cl_mem_flags(flags), C.cl_mem_object_type(image_type),
-		C.cl_uint(num_entries), (*C.cl_image_format)(image_formats), (*C.cl_uint)(num_image_formats)))
-}
-
 // Creates a 2D image object.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateImage2D.html
 func CreateImage2D(context Context, flags MemFlags, image_format ImageFormat, image_width, image_height,
@@ -122,4 +113,13 @@ func GetImageInfo(image Mem, param_name ImageInfo, param_value_size Size, param_
 
 	return toError(C.clGetImageInfo(image, C.cl_image_info(param_name), C.size_t(param_value_size), param_value,
 		(*C.size_t)(param_value_size_ret)))
+}
+
+// Get the list of image formats supported by an OpenCL implementation.
+// http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetSupportedImageFormats.html
+func GetSupportedImageFormats(context Context, flags MemFlags, image_type MemObjectType, num_entries Uint,
+	image_formats *ImageFormat, num_image_formats *Uint) error {
+
+	return toError(C.clGetSupportedImageFormats(context, C.cl_mem_flags(flags), C.cl_mem_object_type(image_type),
+		C.cl_uint(num_entries), (*C.cl_image_format)(image_formats), (*C.cl_uint)(num_image_formats)))
 }
