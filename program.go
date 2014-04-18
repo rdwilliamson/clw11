@@ -22,6 +22,7 @@ type (
 	Program          C.cl_program
 	ProgramInfo      C.cl_program_info
 	ProgramBuildInfo C.cl_program_build_info
+	BuildStatus      C.cl_build_status
 )
 
 const (
@@ -35,9 +36,16 @@ const (
 )
 
 const (
-	ProgramBuildStatus  = ProgramBuildInfo(C.CL_PROGRAM_BUILD_STATUS)
-	ProgramBuildOptions = ProgramBuildInfo(C.CL_PROGRAM_BUILD_OPTIONS)
-	ProgramBuildLog     = ProgramBuildInfo(C.CL_PROGRAM_BUILD_LOG)
+	ProgramBuildStatusInfo = ProgramBuildInfo(C.CL_PROGRAM_BUILD_STATUS)
+	ProgramBuildOptions    = ProgramBuildInfo(C.CL_PROGRAM_BUILD_OPTIONS)
+	ProgramBuildLog        = ProgramBuildInfo(C.CL_PROGRAM_BUILD_LOG)
+)
+
+const (
+	BuildSuccess    = BuildStatus(C.CL_BUILD_SUCCESS)
+	BuildNone       = BuildStatus(C.CL_BUILD_NONE)
+	BuildError      = BuildStatus(C.CL_BUILD_ERROR)
+	BuildInProgress = BuildStatus(C.CL_BUILD_IN_PROGRESS)
 )
 
 // Creates a program object for a context, and loads the source code specified
