@@ -122,12 +122,17 @@ func BuildProgram(program Program, devices []DeviceID, options string, callback 
 	cOptions := C.CString(options)
 	defer C.free(unsafe.Pointer(cOptions))
 
-	key := programCallbacks.add(callback, userData)
+	var callbackPtr *[0]byte
+	var key uintptr
+	if callback != nil {
+		callbackPtr = (*[0]byte)(C.callProgramCallback)
+		key = programCallbacks.add(callback, userData)
+	}
 
 	err := toError(C.clBuildProgram(program, C.cl_uint(len(devices)), (*C.cl_device_id)(&devices[0]), cOptions,
-		(*[0]byte)(C.callProgramCallback), unsafe.Pointer(key)))
+		callbackPtr, unsafe.Pointer(key)))
 
-	if err != nil {
+	if err != nil && callback != nil {
 		// If the C side setting of the callback failed the get callback will
 		// remove the callback from the map.
 		programCallbacks.get(key)
