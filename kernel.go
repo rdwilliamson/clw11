@@ -18,11 +18,11 @@ type (
 )
 
 const (
-	KernelFunctionName    = KernelInfo(C.CL_KERNEL_FUNCTION_NAME)
-	KernelNumArgs         = KernelInfo(C.CL_KERNEL_NUM_ARGS)
-	KernelReference_count = KernelInfo(C.CL_KERNEL_REFERENCE_COUNT)
-	KernelContext         = KernelInfo(C.CL_KERNEL_CONTEXT)
-	KernelProgram         = KernelInfo(C.CL_KERNEL_PROGRAM)
+	KernelFunctionName   = KernelInfo(C.CL_KERNEL_FUNCTION_NAME)
+	KernelNumArgs        = KernelInfo(C.CL_KERNEL_NUM_ARGS)
+	KernelReferenceCount = KernelInfo(C.CL_KERNEL_REFERENCE_COUNT)
+	KernelContext        = KernelInfo(C.CL_KERNEL_CONTEXT)
+	KernelProgram        = KernelInfo(C.CL_KERNEL_PROGRAM)
 )
 
 const (
