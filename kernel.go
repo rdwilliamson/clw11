@@ -7,6 +7,13 @@ package clw11
 #else
 #include "CL/opencl.h"
 #endif
+
+extern void nativeKernel(cl_mem memobj, void *user_data);
+
+void callNativeKernel(cl_mem memobj, void *user_data)
+{
+	nativeKernel(memobj, user_data);
+}
 */
 import "C"
 import "unsafe"
@@ -119,18 +126,20 @@ func EnqueueTask(command_queue CommandQueue, kernel Kernel, wait_list []Event, e
 // Enqueues a command to execute a native C/C++ function not compiled using the
 // OpenCL compiler.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clEnqueueNativeKernel.html
-func EnqueueNativeKernel(command_queue CommandQueue, user_func unsafe.Pointer, args unsafe.Pointer, cb_args Size,
-	mem_object_list []Mem, args_mem_loc *unsafe.Pointer, wait_list []Event, event *Event) error {
+func EnqueueNativeKernel(command_queue CommandQueue, user_func NativeKernelFunc, args interface{},
+	mem_object_list []Mem, args_mem_loc interface{}, wait_list []Event, event *Event) error {
 
-	var num_mem_object Uint
-	var mem_list *Mem
-	if mem_object_list != nil && len(mem_object_list) > 0 {
-		num_mem_object = Uint(len(mem_object_list))
-		mem_list = &mem_object_list[0]
-	}
-	event_wait_list, num_events_in_wait_list := toEventList(wait_list)
+	// var num_mem_object Uint
+	// var mem_list *Mem
+	// if mem_object_list != nil && len(mem_object_list) > 0 {
+	// 	num_mem_object = Uint(len(mem_object_list))
+	// 	mem_list = &mem_object_list[0]
+	// }
+	// event_wait_list, num_events_in_wait_list := toEventList(wait_list)
 
-	return toError(C.clEnqueueNativeKernel(command_queue, (*[0]byte)(user_func), args, C.size_t(cb_args),
-		C.cl_uint(num_mem_object), (*C.cl_mem)(mem_list), args_mem_loc, num_events_in_wait_list, event_wait_list,
-		(*C.cl_event)(event)))
+	// return toError(C.clEnqueueNativeKernel(command_queue, (*[0]byte)(user_func), args, C.size_t(cb_args),
+	// 	C.cl_uint(num_mem_object), (*C.cl_mem)(mem_list), args_mem_loc, num_events_in_wait_list, event_wait_list,
+	// 	(*C.cl_event)(event)))
+
+	return nil
 }
