@@ -54,8 +54,8 @@ var (
 )
 
 //export nativeKernel
-func nativeKernel(memobj C.cl_mem, user_data unsafe.Pointer) {
+func nativeKernel(key unsafe.Pointer) {
 
-	callback, userData := nativeKernelCollection.get(uintptr(user_data))
+	callback, userData := nativeKernelCollection.get(uintptr(key))
 	callback(userData)
 }
