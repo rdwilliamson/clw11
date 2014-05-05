@@ -56,7 +56,7 @@ const (
 	UnsignedInt16  ChannelType = C.CL_UNSIGNED_INT16
 	UnsignedInt32  ChannelType = C.CL_UNSIGNED_INT32
 	HalfFloat      ChannelType = C.CL_HALF_FLOAT
-	Float          ChannelType = C.CL_FLOAT
+	Float32        ChannelType = C.CL_FLOAT // Appended "32" due to conflict with type.
 )
 
 const (
