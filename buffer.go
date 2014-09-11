@@ -163,12 +163,16 @@ func ReleaseMemObject(memobj Mem) error {
 // https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetMemObjectDestructorCallback.html
 func SetMemObjectDestructorCallback(memobj Mem, callback BufferCallbackFunc, user_data interface{}) error {
 
-	key := bufferCallbacks.add(callback, user_data)
+	var cCallBufferCallback *[0]byte
+	var key uintptr
+	if callback != nil {
+		cCallBufferCallback = (*[0]byte)(C.callBufferCallback)
+		key = bufferCallbacks.add(callback, user_data)
+	}
 
-	err := toError(C.clSetMemObjectDestructorCallback(C.cl_mem(memobj), (*[0]byte)(C.callBufferCallback),
-		unsafe.Pointer(key)))
+	err := toError(C.clSetMemObjectDestructorCallback(C.cl_mem(memobj), cCallBufferCallback, unsafe.Pointer(key)))
 
-	if err != nil {
+	if err != nil && callback != nil {
 		// If the C side setting of the callback failed GetCallback will remove
 		// the callback from the map.
 		bufferCallbacks.get(key)

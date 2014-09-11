@@ -120,12 +120,17 @@ func GetEventInfo(event Event, paramName EventInfo, paramValueSize Size, paramVa
 func SetEventCallback(event Event, command_exec_callback_type CommandExecutionStatus, callback EventCallbackFunc,
 	user_data interface{}) error {
 
-	key := eventCallbacks.add(callback, user_data)
+	var cCallEventCallback *[0]byte
+	var key uintptr
+	if callback != nil {
+		cCallEventCallback = (*[0]byte)(C.callEventCallback)
+		key = eventCallbacks.add(callback, user_data)
+	}
 
-	err := toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), (*[0]byte)(C.callEventCallback),
+	err := toError(C.clSetEventCallback(event, C.cl_int(command_exec_callback_type), cCallEventCallback,
 		unsafe.Pointer(key)))
 
-	if err != nil {
+	if err != nil && callback != nil {
 		// If the C side setting of the callback failed the get callback will
 		// remove the callback from the map.
 		eventCallbacks.get(key)

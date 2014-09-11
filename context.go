@@ -45,13 +45,18 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 		propertiesPtr = (*C.cl_context_properties)(&properties[0])
 	}
 
-	key := contextCallbacks.add(callback, user_data)
+	var cCallContextCallback *[0]byte
+	var key uintptr
+	if callback != nil {
+		cCallContextCallback = (*[0]byte)(C.callContextCallback)
+		key = contextCallbacks.add(callback, user_data)
+	}
 
 	var err C.cl_int
 	context := C.clCreateContext(propertiesPtr, C.cl_uint(len(devices)), (*C.cl_device_id)(unsafe.Pointer(&devices[0])),
-		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
+		cCallContextCallback, unsafe.Pointer(key), &err)
 
-	if err != C.CL_SUCCESS {
+	if err != C.CL_SUCCESS && callback != nil {
 		// If the C side setting of the callback failed the get callback will
 		// remove the callback from the map.
 		contextCallbacks.get(key)
@@ -71,11 +76,16 @@ func CreateContextFromType(properties []ContextProperties, device_type DeviceTyp
 		propertiesPtr = (*C.cl_context_properties)(&properties[0])
 	}
 
-	key := contextCallbacks.add(callback, user_data)
+	var cCallContextCallback *[0]byte
+	var key uintptr
+	if callback != nil {
+		cCallContextCallback = (*[0]byte)(C.callContextCallback)
+		key = contextCallbacks.add(callback, user_data)
+	}
 
 	var err C.cl_int
-	context := C.clCreateContextFromType(propertiesPtr, C.cl_device_type(device_type),
-		(*[0]byte)(C.callContextCallback), unsafe.Pointer(key), &err)
+	context := C.clCreateContextFromType(propertiesPtr, C.cl_device_type(device_type), cCallContextCallback,
+		unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS {
 		// If the C side setting of the callback failed GetCallback will remove
