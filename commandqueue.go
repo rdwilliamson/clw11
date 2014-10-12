@@ -9,16 +9,25 @@ package clw11
 #endif
 */
 import "C"
+import "unsafe"
 
 type (
 	CommandQueue           C.cl_command_queue
 	CommandQueueProperties C.cl_command_queue_properties
+	CommandQueueInfo       C.cl_command_queue_info
 )
 
 // Bitfield.
 const (
 	QueueOutOfOrderExecModeEnable CommandQueueProperties = C.CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
 	QueueProfilingEnable          CommandQueueProperties = C.CL_QUEUE_PROFILING_ENABLE
+)
+
+const (
+	QueueContext        CommandQueueInfo = C.CL_QUEUE_CONTEXT
+	QueueDevice         CommandQueueInfo = C.CL_QUEUE_DEVICE
+	QueueReferenceCount CommandQueueInfo = C.CL_QUEUE_REFERENCE_COUNT
+	QueueProperties     CommandQueueInfo = C.CL_QUEUE_PROPERTIES
 )
 
 // Create a command-queue on a specific device.
@@ -73,4 +82,12 @@ func Flush(cq CommandQueue) error {
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clFinish.html
 func Finish(cq CommandQueue) error {
 	return toError(C.clFinish(cq))
+}
+
+// Query information about a command-queue.
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clGetCommandQueueInfo.html
+func GetCommandQueueInfo(command_queue CommandQueue, param_name CommandQueueInfo, param_value_size Size,
+	param_value unsafe.Pointer, param_value_size_ret *Size) error {
+	return toError(C.clGetCommandQueueInfo(command_queue, C.cl_command_queue_info(param_name),
+		C.size_t(param_value_size), param_value, (*C.size_t)(param_value_size_ret)))
 }
