@@ -11,9 +11,6 @@ package clw11
 import "C"
 import (
 	"errors"
-	"fmt"
-	"runtime"
-	"strings"
 )
 
 var (
@@ -125,29 +122,8 @@ var errorMap = map[C.cl_int]error{
 	C.CL_INVALID_PROPERTY:                InvalidProperty,
 }
 
-// Error with calling function.
-type Error struct {
-	Function string
-	Err      error
-}
-
-func (err Error) Error() string {
-	return fmt.Sprint(err.Function, ": ", err.Err.Error())
-}
-
-// Gets "package.function" from call stack for error.
-func wrapError(err error) error {
-	pc, _, _, _ := runtime.Caller(2)
-	name := runtime.FuncForPC(pc).Name()
-	last := strings.LastIndex(name, "/")
-	if last == -1 {
-		last = 0
-	} else {
-		last++
-	}
-	return &Error{name[last:], err}
-}
-
+// CodeToError converts an OpenCL int to an OpenCL error. It panics if there is
+// no corresponding error.
 func CodeToError(code Int) error {
 	return toError(C.cl_int(code))
 }
@@ -156,10 +132,8 @@ func toError(code C.cl_int) error {
 	if code == C.CL_SUCCESS {
 		return nil
 	}
-
 	if err := errorMap[code]; err != nil {
-		return wrapError(err)
+		return err
 	}
-
 	panic("unknown OpenCL error")
 }
