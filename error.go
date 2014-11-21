@@ -11,6 +11,7 @@ package clw11
 import "C"
 import (
 	"errors"
+	"strconv"
 )
 
 var (
@@ -122,10 +123,15 @@ var errorMap = map[C.cl_int]error{
 	C.CL_INVALID_PROPERTY:                InvalidProperty,
 }
 
-// CodeToError converts an OpenCL int to an OpenCL error. It panics if there is
-// no corresponding error.
+// CodeToError converts an OpenCL int to an OpenCL error.
 func CodeToError(code Int) error {
 	return toError(C.cl_int(code))
+}
+
+type UnknownError Int
+
+func (ue UnknownError) Error() string {
+	return "cl: unkown error: " + strconv.Itoa(int(ue))
 }
 
 func toError(code C.cl_int) error {
@@ -135,5 +141,5 @@ func toError(code C.cl_int) error {
 	if err := errorMap[code]; err != nil {
 		return err
 	}
-	panic("unknown OpenCL error")
+	return UnknownError(code)
 }
