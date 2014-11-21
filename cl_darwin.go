@@ -16,7 +16,7 @@ const (
 	GLShareGroupApple ContextProperties = C.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE
 )
 
-var InvalidGLContextApple = errors.New("invalid GL context apple")
+var InvalidGLContextApple = errors.New("cl: invalid GL context apple")
 
 func init() {
 	errorMap[C.CL_INVALID_GL_CONTEXT_APPLE] = InvalidGLContextApple

@@ -17,7 +17,7 @@ const (
 	GLXDisplay ContextProperties = C.CL_GLX_DISPLAY_KHR
 )
 
-var InvalidGLSharegroupReference = errors.New("invalid GL sharegroup reference")
+var InvalidGLSharegroupReference = errors.New("cl: invalid GL sharegroup reference")
 
 func init() {
 	errorMap[C.CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR] = InvalidGLSharegroupReference
