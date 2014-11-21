@@ -92,7 +92,7 @@ func CreateUserEvent(context Context) (Event, error) {
 }
 
 // Sets the execution status of a user event object.
-// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateUserEvent.html
+// https://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clSetUserEventStatus.html
 func SetUserEventStatus(event Event, execution_status Int) error {
 	return toError(C.clSetUserEventStatus(event, C.cl_int(execution_status)))
 }
