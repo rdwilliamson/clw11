@@ -22,7 +22,7 @@ type contextCallbackData struct {
 }
 
 type contextCallbackCollection struct {
-	sync.Mutex
+	sync.RWMutex
 	callbackMap map[uintptr]contextCallbackData
 	counter     uintptr
 }
@@ -40,9 +40,9 @@ func (ccc *contextCallbackCollection) add(function ContextCallbackFunc, userData
 
 func (ccc *contextCallbackCollection) get(key uintptr) (ContextCallbackFunc, interface{}) {
 
-	ccc.Lock()
+	ccc.RLock()
 	data := ccc.callbackMap[key]
-	ccc.Unlock()
+	ccc.RUnlock()
 
 	return data.function, data.userData
 }
