@@ -37,6 +37,10 @@ const (
 
 // Creates an OpenCL context.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContext.html
+//
+// NOTE: The callback and user_data will be referenced for the lifetime of the
+//       program. Thus any variables captured if callback is a closure or any
+//       variables referenced by user_data will not be garbage collected.
 func CreateContext(properties []ContextProperties, devices []DeviceID, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
 
@@ -57,9 +61,7 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 		cCallContextCallback, unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS && callback != nil {
-		// If the C side setting of the callback failed the get callback will
-		// remove the callback from the map.
-		contextCallbacks.get(key)
+		contextCallbacks.delete(key)
 	}
 
 	return Context(context), toError(err)
@@ -68,6 +70,10 @@ func CreateContext(properties []ContextProperties, devices []DeviceID, callback 
 // Create an OpenCL context from a device type that identifies the specific
 // device(s) to use.
 // http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateContextFromType.html
+//
+// NOTE: The callback and user_data will be referenced for the lifetime of the
+//       program. Thus any variables captured if callback is a closure or any
+//       variables referenced by user_data will not be garbage collected.
 func CreateContextFromType(properties []ContextProperties, device_type DeviceType, callback ContextCallbackFunc,
 	user_data interface{}) (Context, error) {
 
@@ -88,9 +94,7 @@ func CreateContextFromType(properties []ContextProperties, device_type DeviceTyp
 		unsafe.Pointer(key), &err)
 
 	if err != C.CL_SUCCESS {
-		// If the C side setting of the callback failed GetCallback will remove
-		// the callback from the map.
-		contextCallbacks.get(key)
+		contextCallbacks.delete(key)
 	}
 
 	return Context(context), toError(err)

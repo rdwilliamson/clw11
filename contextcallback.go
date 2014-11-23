@@ -42,10 +42,16 @@ func (ccc *contextCallbackCollection) get(key uintptr) (ContextCallbackFunc, int
 
 	ccc.Lock()
 	data := ccc.callbackMap[key]
-	delete(ccc.callbackMap, key)
 	ccc.Unlock()
 
 	return data.function, data.userData
+}
+
+func (ccc *contextCallbackCollection) delete(key uintptr) {
+
+	ccc.Lock()
+	delete(ccc.callbackMap, key)
+	ccc.Unlock()
 }
 
 var (
